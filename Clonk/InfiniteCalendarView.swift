@@ -8,17 +8,38 @@ struct InfiniteCalendarView: View {
 	@State private var isLoadingMore = false
 	@State private var shouldScrollToSelected = false
 
-	private let calendar = Calendar.current
+	private let calendar: Calendar = {
+		var cal = Calendar.current
+		cal.locale = Locale.autoupdatingCurrent
+		return cal
+	}()
+
 	private let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter()
 		formatter.dateFormat = "d"
 		return formatter
 	}()
 
+	private var weekdaySymbols: [String] {
+		let symbols = calendar.shortStandaloneWeekdaySymbols
+		// Calendar.current.firstWeekday tells us which day starts the week (1=Sunday, 2=Monday)
+		// But we always want Monday first for our grid
+		// weekdaySymbols array is always indexed as [Sunday, Monday, Tuesday, ...]
+		// regardless of locale, per Apple documentation
+
+		// Start with Monday (index 1) through Saturday (index 6), then Sunday (index 0)
+		var reordered: [String] = []
+		for i in 1...6 {
+			reordered.append(symbols[i])
+		}
+		reordered.append(symbols[0]) // Add Sunday at the end
+		return reordered
+	}
+
 	var body: some View {
 		VStack(spacing: 0) {
 			HStack(spacing: 0) {
-				ForEach(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], id: \.self) { day in
+				ForEach(weekdaySymbols, id: \.self) { day in
 					Text(day)
 						.font(.system(size: 12, weight: .medium))
 						.foregroundColor(.secondary)
