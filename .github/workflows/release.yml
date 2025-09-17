@@ -3,10 +3,20 @@ name: Release Build
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to upload to'
+        required: true
+        type: string
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: macos-latest
+    name: Build and Release
 
     steps:
     - uses: actions/checkout@v4
@@ -22,17 +32,9 @@ jobs:
         chmod +x build.sh
         ./build.sh
 
-    - name: Create release archive
-      run: |
-        cd build
-        zip -r Clonk-${{ github.event.release.tag_name }}.zip Clonk.app
-
     - name: Upload release asset
-      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: build/Clonk-${{ github.event.release.tag_name }}.zip
-        asset_name: Clonk-${{ github.event.release.tag_name }}.zip
-        asset_content_type: application/zip
+        TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
+      run: |
+        gh release upload "${TAG_NAME}" "build/Clonk.app"
