@@ -1,0 +1,33 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, trunk ]
+  pull_request:
+    branches: [ main, trunk ]
+
+jobs:
+  test:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Show system info
+      run: |
+        sw_vers
+        xcode-select -p
+        xcodebuild -version
+
+    - name: Run all tests
+      run: |
+        cd Clonk
+        chmod +x test.sh
+        ./test.sh
+
+    - name: Upload test artifacts
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-artifacts
+        path: Clonk/build/
