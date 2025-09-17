@@ -13,27 +13,27 @@ struct TimezonePanel: View {
 		formatter.timeStyle = .short
 		return formatter
 	}
-	
+
 	private var timezoneName: String {
 		// Use the original identifier we saved, not the timezone's reported identifier
 		let identifier = timezoneIdentifier
-		
+
 		// Special case for UTC
 		if identifier == "UTC" {
 			return "UTC"
 		}
-		
+
 		// Extract city name from timezone identifier (e.g., "Europe/Rome" -> "Rome")
 		let components = identifier.components(separatedBy: "/")
 		if components.count >= 2, let city = components.last {
 			// Replace underscores with spaces (e.g., "Los_Angeles" -> "Los Angeles")
 			return city.replacingOccurrences(of: "_", with: " ")
 		}
-		
+
 		// Fallback to identifier
 		return identifier
 	}
-	
+
 	var body: some View {
 		VStack(spacing: 2) {
 			Button(action: onTapName) {

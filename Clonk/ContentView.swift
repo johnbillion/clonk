@@ -16,7 +16,7 @@ struct ContentView: View {
 	var body: some View {
 		VStack(spacing: 0) {
 			TimezoneContainer(
-				selectedTimezones: $selectedTimezones, 
+				selectedTimezones: $selectedTimezones,
 				timezoneIdentifiers: $timezoneIdentifiers,
 				onTimezoneChanged: saveTimezones
 			)
@@ -24,7 +24,7 @@ struct ContentView: View {
 			Divider()
 
 			InfiniteCalendarView(
-				selectedDate: $selectedDate, 
+				selectedDate: $selectedDate,
 				todaysDate: todaysDate,
 				shouldScrollToToday: $shouldScrollToToday
 			)
@@ -48,15 +48,15 @@ struct ContentView: View {
 				.onHover { isHovered in
 					isTodayHovered = isHovered
 				}
-				
+
 				Spacer()
-				
+
 				Text(dateString(selectedDate))
 					.font(.caption)
 					.foregroundColor(.secondary)
-				
+
 				Spacer()
-				
+
 				Button(action: {
 					isPinned.toggle()
 					appDelegate.setPinned(isPinned)
@@ -112,7 +112,7 @@ struct ContentView: View {
 			}
 		}
 	}
-	
+
 	private func saveTimezones() {
 		UserDefaults.standard.set(timezoneIdentifiers, forKey: "selectedTimezoneIdentifiers")
 	}

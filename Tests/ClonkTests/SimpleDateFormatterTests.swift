@@ -6,7 +6,7 @@ import Foundation
 func testTimeDisplayFormat() -> Bool {
 	let formatter = DateFormatter()
 	formatter.dateFormat = "HH:mm:ss"
-	
+
 	let testDate = Calendar.current.date(from: DateComponents(
 		year: 2024,
 		month: 1,
@@ -15,7 +15,7 @@ func testTimeDisplayFormat() -> Bool {
 		minute: 30,
 		second: 45
 	))!
-	
+
 	let result = formatter.string(from: testDate)
 	return result == "14:30:45"
 }
@@ -23,13 +23,13 @@ func testTimeDisplayFormat() -> Bool {
 func testMonthYearStringFormat() -> Bool {
 	let formatter = DateFormatter()
 	formatter.dateFormat = "MMMM yyyy"
-	
+
 	let testDate = Calendar.current.date(from: DateComponents(
 		year: 2024,
 		month: 3,
 		day: 15
 	))!
-	
+
 	let result = formatter.string(from: testDate)
 	return result == "March 2024"
 }
@@ -37,13 +37,13 @@ func testMonthYearStringFormat() -> Bool {
 func testDateStringFormat() -> Bool {
 	let formatter = DateFormatter()
 	formatter.dateStyle = .medium
-	
+
 	let testDate = Calendar.current.date(from: DateComponents(
 		year: 2024,
 		month: 6,
 		day: 10
 	))!
-	
+
 	let result = formatter.string(from: testDate)
 	return result.contains("Jun") || result.contains("June")
 }
@@ -52,13 +52,13 @@ func testDateStringFormat() -> Bool {
 func runAllTests() {
 	var passed = 0
 	var total = 0
-	
+
 	let tests: [(String, () -> Bool)] = [
 		("Time Display Format", testTimeDisplayFormat),
 		("Month Year Format", testMonthYearStringFormat),
 		("Date String Format", testDateStringFormat)
 	]
-	
+
 	for (name, test) in tests {
 		total += 1
 		if test() {
@@ -68,9 +68,9 @@ func runAllTests() {
 			print("❌ \(name)")
 		}
 	}
-	
+
 	print("\nResults: \(passed)/\(total) tests passed")
-	
+
 	if passed == total {
 		print("🎉 All tests passed!")
 	} else {

@@ -9,7 +9,7 @@ struct TimezoneContainer: View {
 	@State private var selectedPanelIndex = 0
 	
 	let onTimezoneChanged: () -> Void
-	
+
 	var body: some View {
 		HStack(spacing: 0) {
 			ForEach(Array(timezoneIdentifiers.enumerated()), id: \.offset) { index, identifier in
@@ -22,7 +22,7 @@ struct TimezoneContainer: View {
 						showingPicker = true
 					}
 				)
-				
+
 				if index < selectedTimezones.count - 1 {
 					Divider()
 						.frame(height: 60)
