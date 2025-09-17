@@ -37,7 +37,8 @@ struct TimezoneContainer: View {
 						showingPicker = true
 					},
 					isFirst: index == 0,
-					isLast: index == timezoneIdentifiers.count - 1
+					isLast: index == timezoneIdentifiers.count - 1,
+					timezoneCount: timezoneIdentifiers.count
 				)
 
 				if index < selectedTimezones.count - 1 {

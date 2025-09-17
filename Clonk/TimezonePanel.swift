@@ -10,6 +10,7 @@ struct TimezonePanel: View {
 	let onAddRight: (() -> Void)?
 	let isFirst: Bool
 	let isLast: Bool
+	let timezoneCount: Int
 	@State private var isHovered = false
 	@State private var isNameButtonHovered = false
 	@State private var showDeleteButton = false
@@ -43,13 +44,24 @@ struct TimezonePanel: View {
 		return identifier
 	}
 
+	private var fontSize: CGFloat {
+		let baseSize: CGFloat = 15
+		return max(baseSize - CGFloat(max(0, timezoneCount - 4)), 10)
+	}
+
+	private var nameFontSize: CGFloat {
+		return max(fontSize * 0.75, 10)
+	}
+
 	var body: some View {
 		ZStack {
 			VStack(spacing: 2) {
 				Button(action: onTapName) {
 					Text(timezoneName)
-						.font(.caption)
-						.foregroundColor(.secondary)
+						.font(.system(size: nameFontSize, weight: .medium))
+						.foregroundColor(.primary)
+						.lineLimit(1)
+						.truncationMode(.tail)
 						.padding(.horizontal, 4)
 						.padding(.vertical, 2)
 						.background(isNameButtonHovered ? Color.gray.opacity(0.15) : Color.clear)
@@ -61,7 +73,7 @@ struct TimezonePanel: View {
 				}
 
 				Text(timeFormatter.string(from: currentTime))
-					.font(.system(size: 14, weight: .medium))
+					.font(.system(size: fontSize, weight: .medium))
 					.foregroundColor(.primary)
 			}
 			.frame(maxWidth: .infinity)

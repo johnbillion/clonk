@@ -47,7 +47,7 @@ struct InfiniteCalendarView: View {
 						.frame(height: 24)
 				}
 			}
-			.background(Color.gray.opacity(0.1))
+			.background(Color(NSColor.controlBackgroundColor))
 
 			ScrollViewReader { proxy in
 				ScrollView(showsIndicators: false) {

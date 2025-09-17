@@ -56,11 +56,11 @@ struct CalendarDayView: View {
 		if isSelected {
 			return Color(NSColor.controlAccentColor)
 		} else if isWeekend {
-			return Color.gray.opacity(0.1)
+			return Color.gray.opacity(0.01)
 		} else if isAlternateMonth {
-			return Color.gray.opacity(0.05)
+			return Color.gray.opacity(0.0005)
 		} else {
-			return Color.clear
+			return Color(NSColor.controlBackgroundColor)
 		}
 	}
 
