@@ -8,59 +8,55 @@ struct TimezoneContainer: View {
 	@State private var showingPicker = false
 	@State private var selectedPanelIndex = 0
 	@State private var isInserting = false
+	@State private var isHovered = false
+	@State private var showPlusButton = false
+	@State private var hoverTask: Task<Void, Never>?
 
 	let onTimezoneChanged: () -> Void
 
 	var body: some View {
-		HStack(spacing: 0) {
-			ForEach(Array(timezoneIdentifiers.enumerated()), id: \.offset) { index, identifier in
-				TimezonePanel(
-					timezone: selectedTimezones[index],
-					timezoneIdentifier: identifier,
-					currentTime: currentTime,
-					onTapName: {
-						selectedPanelIndex = index
-						isInserting = false
-						showingPicker = true
-					},
-					onDelete: timezoneIdentifiers.count > 1 ? {
-						deleteTimezone(at: index)
-					} : nil,
-					onAddLeft: {
-						selectedPanelIndex = index
-						isInserting = true
-						showingPicker = true
-					},
-					onAddRight: {
-						selectedPanelIndex = index + 1
-						isInserting = true
-						showingPicker = true
-					},
-					isFirst: index == 0,
-					isLast: index == timezoneIdentifiers.count - 1,
-					timezoneCount: timezoneIdentifiers.count
-				)
+		ZStack {
+			HStack(spacing: 0) {
+				ForEach(Array(timezoneIdentifiers.enumerated()), id: \.offset) { index, identifier in
+					TimezonePanel(
+						timezone: selectedTimezones[index],
+						timezoneIdentifier: identifier,
+						currentTime: currentTime,
+						onTapName: {
+							selectedPanelIndex = index
+							isInserting = false
+							showingPicker = true
+						},
+						onDelete: timezoneIdentifiers.count > 1 ? {
+							deleteTimezone(at: index)
+						} : nil,
+						timezoneCount: timezoneIdentifiers.count
+					)
 
-				if index < selectedTimezones.count - 1 {
-					Divider()
-						.frame(height: 60)
+					if index < selectedTimezones.count - 1 {
+						Divider()
+							.frame(height: 60)
+					}
 				}
 			}
-
-			// If no timezones, show a single add button
-			if timezoneIdentifiers.isEmpty {
-				Button(action: {
-					selectedPanelIndex = 0
-					isInserting = true
-					showingPicker = true
-				}) {
-					Image(systemName: "plus.circle")
-						.foregroundColor(Color(NSColor.controlAccentColor))
-						.font(.title2)
+			
+			// Plus button overlapping the right-most timezone
+			if showPlusButton {
+				HStack {
+					Spacer()
+					Button(action: {
+						isInserting = true
+						showingPicker = true
+					}) {
+						Image(systemName: "plus.circle.fill")
+							.foregroundColor(Color(NSColor.controlAccentColor))
+							.background(Color.white)
+							.clipShape(Circle())
+							.font(.title2)
+					}
+					.buttonStyle(PlainButtonStyle())
+					.padding(.trailing, 8)
 				}
-				.buttonStyle(PlainButtonStyle())
-				.frame(height: 60)
-				.padding(.horizontal, 20)
 			}
 		}
 		.frame(height: 60)
@@ -71,13 +67,35 @@ struct TimezoneContainer: View {
 		.onDisappear {
 			timer?.invalidate()
 		}
+		.onHover { hovered in
+			isHovered = hovered
+			
+			// Cancel previous task
+			hoverTask?.cancel()
+			
+			if hovered {
+				// Start intent delay
+				hoverTask = Task {
+					try? await Task.sleep(nanoseconds: 200_000_000) // 0.20 second delay
+					if !Task.isCancelled {
+						await MainActor.run {
+							showPlusButton = true
+						}
+					}
+				}
+			} else {
+				// Hide immediately when not hovering
+				showPlusButton = false
+			}
+		}
 		.sheet(isPresented: $showingPicker) {
 			TimezonePickerView { selectedTimezone, identifier in
 				if isInserting {
-					insertTimezone(selectedTimezone, identifier: identifier, at: selectedPanelIndex)
+					addTimezone(selectedTimezone, identifier: identifier)
 				} else {
 					selectedTimezones[selectedPanelIndex] = selectedTimezone
 					timezoneIdentifiers[selectedPanelIndex] = identifier
+					sortTimezones()
 				}
 				onTimezoneChanged()
 				showingPicker = false
@@ -92,9 +110,22 @@ struct TimezoneContainer: View {
 		onTimezoneChanged()
 	}
 
-	private func insertTimezone(_ timezone: TimeZone, identifier: String, at index: Int) {
-		selectedTimezones.insert(timezone, at: index)
-		timezoneIdentifiers.insert(identifier, at: index)
+	private func addTimezone(_ timezone: TimeZone, identifier: String) {
+		selectedTimezones.append(timezone)
+		timezoneIdentifiers.append(identifier)
+		sortTimezones()
+	}
+	
+	private func sortTimezones() {
+		let now = Date()
+		let combined = zip(selectedTimezones, timezoneIdentifiers).sorted { timezone1, timezone2 in
+			let offset1 = timezone1.0.secondsFromGMT(for: now)
+			let offset2 = timezone2.0.secondsFromGMT(for: now)
+			return offset1 < offset2
+		}
+		
+		selectedTimezones = combined.map { $0.0 }
+		timezoneIdentifiers = combined.map { $0.1 }
 	}
 
 	private func startTimer() {

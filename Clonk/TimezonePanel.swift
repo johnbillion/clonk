@@ -6,15 +6,10 @@ struct TimezonePanel: View {
 	let currentTime: Date
 	let onTapName: () -> Void
 	let onDelete: (() -> Void)?
-	let onAddLeft: (() -> Void)?
-	let onAddRight: (() -> Void)?
-	let isFirst: Bool
-	let isLast: Bool
 	let timezoneCount: Int
 	@State private var isHovered = false
 	@State private var isNameButtonHovered = false
 	@State private var showDeleteButton = false
-	@State private var showAddButtons = false
 	@State private var hoverTask: Task<Void, Never>?
 
 	private var timeFormatter: DateFormatter {
@@ -100,46 +95,6 @@ struct TimezonePanel: View {
 				.padding(.trailing, 4)
 			}
 
-			// Plus buttons
-			if showAddButtons {
-				HStack {
-					// Left add button
-					if let onAddLeft = onAddLeft {
-						HStack {
-							Button(action: onAddLeft) {
-								Image(systemName: "plus.circle.fill")
-									.foregroundColor(Color(NSColor.controlAccentColor))
-									.background(Color.white)
-									.clipShape(Circle())
-									.font(.system(size: 14))
-							}
-							.buttonStyle(PlainButtonStyle())
-							.offset(x: isFirst ? 3 : -9) // Inboard if first, over separator otherwise
-
-							Spacer()
-						}
-					}
-
-					Spacer()
-
-					// Right add button
-					if let onAddRight = onAddRight {
-						HStack {
-							Spacer()
-
-							Button(action: onAddRight) {
-								Image(systemName: "plus.circle.fill")
-									.foregroundColor(Color(NSColor.controlAccentColor))
-									.background(Color.white)
-									.clipShape(Circle())
-									.font(.system(size: 14))
-							}
-							.buttonStyle(PlainButtonStyle())
-							.offset(x: isLast ? -3 : 9) // Inboard if last, over separator otherwise
-						}
-					}
-				}
-			}
 		}
 		.onHover { hovered in
 			isHovered = hovered
@@ -154,14 +109,12 @@ struct TimezonePanel: View {
 					if !Task.isCancelled {
 						await MainActor.run {
 							showDeleteButton = true
-							showAddButtons = true
 						}
 					}
 				}
 			} else {
 				// Hide immediately when not hovering
 				showDeleteButton = false
-				showAddButtons = false
 			}
 		}
 	}

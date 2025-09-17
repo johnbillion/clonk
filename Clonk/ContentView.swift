@@ -108,6 +108,21 @@ struct ContentView: View {
 			timezoneIdentifiers = defaultTimezoneIdentifiers()
 			selectedTimezones = timezoneIdentifiers.compactMap { TimeZone(identifier: $0) }
 		}
+		
+		// Sort by timezone offset
+		sortTimezonesByOffset()
+	}
+	
+	private func sortTimezonesByOffset() {
+		let now = Date()
+		let combined = zip(selectedTimezones, timezoneIdentifiers).sorted { timezone1, timezone2 in
+			let offset1 = timezone1.0.secondsFromGMT(for: now)
+			let offset2 = timezone2.0.secondsFromGMT(for: now)
+			return offset1 < offset2
+		}
+		
+		selectedTimezones = combined.map { $0.0 }
+		timezoneIdentifiers = combined.map { $0.1 }
 	}
 
 	private func saveTimezones() {
