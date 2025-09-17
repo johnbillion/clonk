@@ -1,0 +1,38 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Show system info
+      run: |
+        sw_vers
+        xcode-select -p
+        xcodebuild -version
+
+    - name: Build app
+      run: |
+        chmod +x build.sh
+        ./build.sh
+
+    - name: Create release archive
+      run: |
+        cd build
+        zip -r Clonk-${{ github.event.release.tag_name }}.zip Clonk.app
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: build/Clonk-${{ github.event.release.tag_name }}.zip
+        asset_name: Clonk-${{ github.event.release.tag_name }}.zip
+        asset_content_type: application/zip
