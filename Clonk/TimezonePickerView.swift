@@ -6,9 +6,18 @@ struct TimezonePickerView: View {
 
 	private var availableTimezones: [(TimeZone, String)] {
 		let now = Date()
-		let allTimezones = TimeZone.knownTimeZoneIdentifiers
-			.compactMap { TimeZone(identifier: $0) }
-			.map { timezone in
+		var allIdentifiers = TimeZone.knownTimeZoneIdentifiers
+
+		// Add GMT (which represents UTC) to the beginning if not present
+		if !allIdentifiers.contains("GMT") {
+			allIdentifiers.insert("GMT", at: 0)
+		}
+
+		let allTimezones = allIdentifiers
+			.compactMap { identifier -> (TimeZone, String)? in
+				guard let timezone = TimeZone(identifier: identifier) else {
+					return nil
+				}
 				let displayName = friendlyName(for: timezone)
 				return (timezone, displayName)
 			}
@@ -32,6 +41,11 @@ struct TimezonePickerView: View {
 	}
 
 	private func friendlyName(for timezone: TimeZone) -> String {
+		// Special case for GMT - display as UTC
+		if timezone.identifier == "GMT" {
+			return "UTC"
+		}
+
 		// Use the system localized name or format the identifier
 		if let localizedName = timezone.localizedName(for: .generic, locale: .current) {
 			let components = timezone.identifier.components(separatedBy: "/")
@@ -75,6 +89,8 @@ struct TimezonePickerView: View {
 							.font(.caption)
 							.foregroundColor(.secondary)
 					}
+					.frame(maxWidth: .infinity, alignment: .leading)
+					.contentShape(Rectangle())
 				}
 				.buttonStyle(PlainButtonStyle())
 			}

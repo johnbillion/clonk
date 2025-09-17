@@ -88,28 +88,25 @@ struct ContentView: View {
 		formatter.dateStyle = .medium
 		return formatter.string(from: date)
 	}
-	
-	private func loadSavedTimezones() {
-		timezoneIdentifiers = UserDefaults.standard.stringArray(forKey: "selectedTimezoneIdentifiers") ?? [
-			"America/Los_Angeles",
-			"UTC", 
-			"Europe/London",
-			"Asia/Singapore"
+
+	private func defaultTimezoneIdentifiers() -> [String] {
+		return [
+			"America/Los_Angeles",  // US West Coast
+			"America/New_York",     // US East Coast
+			"Europe/London",        // London
+			"Asia/Singapore"        // Singapore
 		]
-		
+	}
+
+	private func loadSavedTimezones() {
+		timezoneIdentifiers = UserDefaults.standard.stringArray(forKey: "selectedTimezoneIdentifiers") ?? defaultTimezoneIdentifiers()
+
 		selectedTimezones = timezoneIdentifiers.compactMap { TimeZone(identifier: $0) }
-		
-		// Ensure we always have 4 timezones
-		while selectedTimezones.count < 4 && timezoneIdentifiers.count < 4 {
-			let defaultTimezones = ["America/Los_Angeles", "UTC", "Europe/London", "Asia/Singapore"]
-			for identifier in defaultTimezones {
-				if let timezone = TimeZone(identifier: identifier),
-				   !timezoneIdentifiers.contains(identifier) {
-					selectedTimezones.append(timezone)
-					timezoneIdentifiers.append(identifier)
-					break
-				}
-			}
+
+		// If no saved timezones, use defaults
+		if timezoneIdentifiers.isEmpty {
+			timezoneIdentifiers = defaultTimezoneIdentifiers()
+			selectedTimezones = timezoneIdentifiers.compactMap { TimeZone(identifier: $0) }
 		}
 	}
 
