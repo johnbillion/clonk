@@ -23,17 +23,21 @@ sleep 1
 	./build/Clonk.app/Contents/MacOS/Clonk &
 }
 
-# Watch and rebuild on changes
-find Clonk -name "*.swift" -o -name "*.plist" | entr -n -r sh -c '
-	echo "🔄 Rebuilding at $(date)..."
-	# Kill ALL instances before rebuilding
-	pkill -9 -f "Clonk" 2>/dev/null || true
-	pkill -9 -f "build/Clonk.app" 2>/dev/null || true
-	sleep 0.5
-	./build.sh && {
-		echo "✅ Build complete at $(date), restarting app..."
+# Watch and rebuild on changes (with directory monitoring for new files)
+while true; do
+	find Clonk -name "*.swift" -o -name "*.plist" | entr -d -n -r sh -c '
+		echo "🔄 Rebuilding at $(date)..."
+		# Kill ALL instances before rebuilding
+		pkill -9 -f "Clonk" 2>/dev/null || true
+		pkill -9 -f "build/Clonk.app" 2>/dev/null || true
 		sleep 0.5
-		./build/Clonk.app/Contents/MacOS/Clonk &
-		echo "👀 Watching for changes..."
-	} || echo "❌ Build failed at $(date)"
-'
+		./build.sh && {
+			echo "✅ Build complete at $(date), restarting app..."
+			sleep 0.5
+			./build/Clonk.app/Contents/MacOS/Clonk &
+			echo "👀 Watching for changes..."
+		} || echo "❌ Build failed at $(date)"
+	'
+	echo "📁 Directory changed, rescanning for new files..."
+	sleep 1
+done
