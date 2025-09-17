@@ -3,8 +3,9 @@ import SwiftUI
 struct TimezonePickerView: View {
 	let onSelection: (TimeZone, String) -> Void
 	@State private var searchText = ""
+	@State private var filteredTimezones: [(TimeZone, String)] = []
 
-	private var availableTimezones: [(TimeZone, String)] {
+	private var allTimezones: [(TimeZone, String)] {
 		let now = Date()
 		var allIdentifiers = TimeZone.knownTimeZoneIdentifiers
 
@@ -30,10 +31,14 @@ struct TimezonePickerView: View {
 				return offset1 < offset2
 			}
 
+		return allTimezones
+	}
+
+	private func updateFilteredTimezones() {
 		if searchText.isEmpty {
-			return allTimezones
+			filteredTimezones = allTimezones
 		} else {
-			return allTimezones.filter {
+			filteredTimezones = allTimezones.filter {
 				$0.1.localizedCaseInsensitiveContains(searchText) ||
 				$0.0.identifier.localizedCaseInsensitiveContains(searchText)
 			}
@@ -74,8 +79,11 @@ struct TimezonePickerView: View {
 			TextField("Search timezones...", text: $searchText)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.padding(.horizontal)
+				.onChange(of: searchText) { _ in
+					updateFilteredTimezones()
+				}
 
-			List(availableTimezones, id: \.0.identifier) { timezone, displayName in
+			List(filteredTimezones, id: \.0.identifier) { timezone, displayName in
 				Button(action: {
 					// Pass both the timezone and its original identifier
 					onSelection(timezone, timezone.identifier)
@@ -96,6 +104,9 @@ struct TimezonePickerView: View {
 			}
 		}
 		.frame(width: 400, height: 500)
+		.onAppear {
+			updateFilteredTimezones()
+		}
 	}
 
 	private func currentTimeString(for timezone: TimeZone) -> String {
