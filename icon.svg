@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+	<!-- C-shaped outer ring -->
+	<path d="M512 128A320 320 0 0 1 832 448A320 320 0 0 1 512 768A320 320 0 0 1 192 448"
+		fill="none"
+		stroke="#2563eb"
+		stroke-width="64"
+		stroke-linecap="round"
+		transform="rotate(135 512 448)"/>
+
+	<!-- Clock face -->
+	<circle cx="512" cy="448" r="256" fill="#ffffff" stroke="#e5e7eb" stroke-width="4"/>
+
+	<!-- Hour markers -->
+	<g stroke="#6b7280" stroke-width="3">
+		<!-- 12 o'clock -->
+		<line x1="512" y1="208" x2="512" y2="232" stroke-width="4"/>
+		<!-- 3 o'clock -->
+		<line x1="752" y1="448" x2="728" y2="448" stroke-width="4"/>
+		<!-- 6 o'clock -->
+		<line x1="512" y1="688" x2="512" y2="664" stroke-width="4"/>
+		<!-- 9 o'clock -->
+		<line x1="272" y1="448" x2="296" y2="448" stroke-width="4"/>
+
+		<!-- Minor hour markers -->
+		<line x1="612" y1="228" x2="602" y2="240"/>
+		<line x1="692" y1="308" x2="680" y2="318"/>
+		<line x1="692" y1="588" x2="680" y2="578"/>
+		<line x1="612" y1="668" x2="602" y2="656"/>
+		<line x1="412" y1="668" x2="422" y2="656"/>
+		<line x1="332" y1="588" x2="344" y2="578"/>
+		<line x1="332" y1="308" x2="344" y2="318"/>
+		<line x1="412" y1="228" x2="422" y2="240"/>
+	</g>
+
+	<!-- Clock hands showing 3:00 -->
+	<g stroke="#1f2937" stroke-linecap="round">
+		<!-- Hour hand (short, thick) -->
+		<line x1="512" y1="448" x2="592" y2="448" stroke-width="8"/>
+		<!-- Minute hand (long, medium) -->
+		<line x1="512" y1="448" x2="512" y2="288" stroke-width="6"/>
+	</g>
+
+	<!-- Center dot -->
+	<circle cx="512" cy="448" r="12" fill="#1f2937"/>
+</svg>
