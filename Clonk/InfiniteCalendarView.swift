@@ -153,8 +153,10 @@ struct InfiniteCalendarView: View {
 	private func scrollToSelectedDate(proxy: ScrollViewProxy) {
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
 			let targetDate = calendar.startOfDay(for: selectedDate)
-			let oneWeekBefore = calendar.date(byAdding: .day, value: -7, to: targetDate) ?? targetDate
-			if let scrollToDate = visibleDates.first(where: { calendar.isDate($0, inSameDayAs: oneWeekBefore) }) {
+			let mondayOfTargetWeek = startOfWeek(for: targetDate)
+			let mondayOneWeekBefore = calendar.date(byAdding: .day, value: -7, to: mondayOfTargetWeek) ?? mondayOfTargetWeek
+			
+			if let scrollToDate = filteredVisibleDates.first(where: { calendar.isDate($0, inSameDayAs: mondayOneWeekBefore) }) {
 				withAnimation(.easeInOut(duration: 0.3)) {
 					proxy.scrollTo(scrollToDate, anchor: UnitPoint.top)
 				}
