@@ -79,7 +79,7 @@ struct TimezonePickerView: View {
 			TextField("Search timezones...", text: $searchText)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.padding(.horizontal)
-				.onChange(of: searchText) { _ in
+				.onChange(of: searchText) {
 					updateFilteredTimezones()
 				}
 

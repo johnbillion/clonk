@@ -21,10 +21,14 @@
 	<key>CFBundleIconFile</key>
 	<string>AppIcon</string>
 	<key>LSMinimumSystemVersion</key>
-	<string>13.0</string>
+	<string>14.0</string>
 	<key>LSUIElement</key>
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2025 John Blackbourn. All rights reserved.</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Clonk needs access to your calendars to display events in the calendar view.</string>
+	<key>NSCalendarsFullAccessUsageDescription</key>
+	<string>Clonk needs full calendar access to display and manage your calendar events.</string>
 </dict>
 </plist>

@@ -11,7 +11,7 @@ if swiftc Clonk/*.swift \
 	-o build/Clonk \
 	-framework AppKit \
 	-framework SwiftUI \
-	-target arm64-apple-macosx13.0 \
+	-target arm64-apple-macosx14.0 \
 	-swift-version 5; then
 
 	# Create app bundle structure

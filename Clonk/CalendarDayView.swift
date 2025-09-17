@@ -1,4 +1,5 @@
 import SwiftUI
+import EventKit
 
 struct CalendarDayView: View {
 	let date: Date
@@ -7,6 +8,7 @@ struct CalendarDayView: View {
 	let onTap: () -> Void
 	let isAlternateMonth: Bool
 
+	@ObservedObject private var calendarManager = CalendarManager.shared
 	private let calendar = Calendar.current
 	private let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter()
@@ -27,9 +29,29 @@ struct CalendarDayView: View {
 					.font(.system(size: 14, weight: isSelected ? .semibold : (calendar.component(.day, from: date) == 1 ? .semibold : .regular)))
 					.foregroundColor(textColor)
 					.multilineTextAlignment(.trailing)
-					.frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+					.frame(maxWidth: .infinity, alignment: .topTrailing)
 					.padding(.top, 7)
 					.padding(.trailing, 10)
+				
+				if !events.isEmpty {
+					HStack(spacing: 2) {
+						Spacer()
+						ForEach(Array(events.prefix(3)), id: \.eventIdentifier) { event in
+							Circle()
+								.fill(Color(cgColor: event.calendar.cgColor))
+								.frame(width: 4, height: 4)
+						}
+						if events.count > 3 {
+							Text("+\(events.count - 3)")
+								.font(.system(size: 9))
+								.foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+						}
+					}
+					.padding(.bottom, 6)
+					.padding(.trailing, 10)
+				}
+				
+				Spacer(minLength: 0)
 			}
 			.frame(height: 52)
 			.frame(maxWidth: .infinity)
@@ -83,6 +105,11 @@ struct CalendarDayView: View {
 		} else {
 			return "\(day)"
 		}
+	}
+	
+	private var events: [EKEvent] {
+		let dayStart = calendar.startOfDay(for: date)
+		return calendarManager.events[dayStart] ?? []
 	}
 
 }

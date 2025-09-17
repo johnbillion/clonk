@@ -11,7 +11,7 @@ Download `Clonk.dmg` from [the latest release](https://github.com/johnbillion/cl
 ### Option 1: Command Line (No Xcode Required)
 
 **Prerequisites:**
-- macOS 13.0 or later
+- macOS 14.0 or later
 - Command Line Tools for Xcode: `xcode-select --install`
 
 **Build and run:**

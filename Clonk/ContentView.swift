@@ -8,6 +8,8 @@ struct ContentView: View {
 	@State private var isPinned = true
 	@State private var isPinHovered = false
 	@State private var isTodayHovered = false
+	@State private var isSettingsHovered = false
+	@State private var showingCalendarSettings = false
 	@State private var selectedTimezones: [TimeZone] = []
 	@State private var timezoneIdentifiers: [String] = []
 	@State private var timer: Timer?
@@ -56,6 +58,23 @@ struct ContentView: View {
 					.foregroundColor(.secondary)
 
 				Spacer()
+
+				Button(action: {
+					showingCalendarSettings.toggle()
+				}) {
+					Image(systemName: "calendar")
+						.foregroundColor(.secondary)
+						.padding(6)
+						.background(isSettingsHovered ? Color.gray.opacity(0.15) : Color.clear)
+						.cornerRadius(4)
+				}
+				.buttonStyle(PlainButtonStyle())
+				.onHover { isHovered in
+					isSettingsHovered = isHovered
+				}
+				.popover(isPresented: $showingCalendarSettings, arrowEdge: .bottom) {
+					CalendarSettingsView()
+				}
 
 				Button(action: {
 					isPinned.toggle()

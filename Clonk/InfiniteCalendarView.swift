@@ -7,6 +7,8 @@ struct InfiniteCalendarView: View {
 	@State private var visibleDates: [Date] = []
 	@State private var isLoadingMore = false
 	@State private var shouldScrollToSelected = false
+	@State private var loadedMonths: Set<String> = []
+	@StateObject private var calendarManager = CalendarManager.shared
 
 	private let calendar: Calendar = {
 		var cal = Calendar.current
@@ -67,6 +69,7 @@ struct InfiniteCalendarView: View {
 							if index >= visibleDates.count - 180 && !isLoadingMore {
 								loadMoreWeeks()
 							}
+							checkAndLoadEventsForMonth(date)
 						}
 					}
 				}
@@ -75,14 +78,20 @@ struct InfiniteCalendarView: View {
 			.onAppear {
 				generateInitialDates()
 				scrollToSelectedDate(proxy: proxy)
+				// Load events for the initial visible months
+				calendarManager.loadEventsForMonth(containing: selectedDate)
 			}
-			.onChange(of: selectedDate) { _ in
+			.onReceive(calendarManager.objectWillChange) { _ in
+				// When calendar manager changes, just clear our local tracking
+				// The calendar manager will handle reloading
+			}
+			.onChange(of: selectedDate) {
 				if shouldScrollToSelected {
 					scrollToSelectedDate(proxy: proxy)
 					shouldScrollToSelected = false
 				}
 			}
-			.onChange(of: shouldScrollToToday) { _ in
+			.onChange(of: shouldScrollToToday) {
 				if shouldScrollToToday {
 					scrollToSelectedDate(proxy: proxy)
 					shouldScrollToToday = false
@@ -162,6 +171,18 @@ struct InfiniteCalendarView: View {
 
 			self.visibleDates.append(contentsOf: newDates)
 			self.isLoadingMore = false
+		}
+	}
+
+	private func checkAndLoadEventsForMonth(_ date: Date, forceReload: Bool = false) {
+		let components = calendar.dateComponents([.year, .month], from: date)
+		let monthKey = "\(components.year ?? 0)-\(components.month ?? 0)"
+
+		if forceReload || !loadedMonths.contains(monthKey) {
+			if !forceReload {
+				loadedMonths.insert(monthKey)
+			}
+			calendarManager.loadEventsForMonth(containing: date, forceReload: forceReload)
 		}
 	}
 }
