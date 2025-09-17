@@ -23,6 +23,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		let contentView = ContentView(appDelegate: self)
 		popover.contentViewController = NSHostingController(rootView: contentView)
 		popover.behavior = .transient
+		popover.animates = false
 
 		eventMonitor = EventMonitor(mask: [.leftMouseDown, .rightMouseDown]) { [weak self] event in
 			if let self = self, self.popover.isShown && !self.isPinned {
