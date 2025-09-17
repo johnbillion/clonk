@@ -76,7 +76,7 @@ sleep 2
 # Check if app is still running
 if kill -0 $APP_PID 2>/dev/null; then
     echo "✅ App launched successfully"
-    
+
     # Kill the test app
     kill $APP_PID 2>/dev/null || true
     wait $APP_PID 2>/dev/null || true
