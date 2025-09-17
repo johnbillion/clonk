@@ -32,9 +32,16 @@ jobs:
         chmod +x build.sh
         ./build.sh
 
+    - name: Create release archive
+      env:
+        TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
+      run: |
+        cd build
+        zip -r "Clonk-${TAG_NAME}.zip" Clonk.app
+
     - name: Upload release asset
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
       run: |
-        gh release upload "${TAG_NAME}" "build/Clonk.app"
+        gh release upload "${TAG_NAME}" "build/Clonk-${TAG_NAME}.zip"
