@@ -7,6 +7,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	var eventMonitor: EventMonitor?
 	var timer: Timer?
 	var isPinned = false
+	private var lastDate = Date()
 
 	func applicationDidFinishLaunching(_ notification: Notification) {
 		statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -20,6 +21,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 		timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
 			self.updateTimeDisplay()
+			self.checkDateChange()
 		}
 
 		let contentView = ContentView(appDelegate: self)
@@ -55,6 +57,18 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		
 		if let button = statusItem.button {
 			button.title = formatter.string(from: Date())
+		}
+	}
+	
+	private func checkDateChange() {
+		let currentDate = Date()
+		let calendar = Calendar.current
+		
+		// Check if we've crossed midnight
+		if !calendar.isDate(lastDate, inSameDayAs: currentDate) {
+			lastDate = currentDate
+			// Notify ContentView that the date has changed
+			NotificationCenter.default.post(name: NSNotification.Name("DateDidChange"), object: nil)
 		}
 	}
 
