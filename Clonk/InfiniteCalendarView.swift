@@ -125,11 +125,13 @@ struct InfiniteCalendarView: View {
 	}
 
 	private func generateInitialDates() {
-		let startDate = calendar.date(byAdding: .month, value: -12, to: Date()) ?? Date()
+		let twelveMonthsAgo = calendar.date(byAdding: .month, value: -12, to: Date()) ?? Date()
+		let firstDayOfMonth = calendar.dateInterval(of: .month, for: twelveMonthsAgo)?.start ?? twelveMonthsAgo
+		let startDate = startOfWeek(for: firstDayOfMonth)
 		let endDate = calendar.date(byAdding: .month, value: 12, to: Date()) ?? Date()
 
 		var dates: [Date] = []
-		var currentDate = startOfWeek(for: startDate)
+		var currentDate = startDate
 		let finalDate = endOfWeek(for: endDate)
 
 		while currentDate <= finalDate {
