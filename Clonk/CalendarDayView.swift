@@ -76,9 +76,9 @@ struct CalendarDayView: View {
 		if day == 1 {
 			if month == 1 {
 				let year = calendar.component(.year, from: date)
-				return "\(day) Jan \(year)"
+				return "Jan \(day) \(year)"
 			} else {
-				return "\(day) \(monthFormatter.string(from: date))"
+				return "\(monthFormatter.string(from: date)) \(day)"
 			}
 		} else {
 			return "\(day)"
