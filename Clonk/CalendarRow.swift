@@ -9,13 +9,13 @@ struct CalendarRow: View {
 	var body: some View {
 		Button(action: onToggle) {
 			HStack(spacing: 12) {
-				Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-					.foregroundColor(isSelected ? Color(cgColor: calendar.cgColor) : .secondary)
-					.font(.system(size: 16))
+				Toggle("", isOn: .constant(isSelected))
+					.labelsHidden()
+					.allowsHitTesting(false)
 
 				Circle()
 					.fill(Color(cgColor: calendar.cgColor))
-					.frame(width: 10, height: 10)
+					.frame(width: 12, height: 12)
 
 				Text(calendar.title)
 					.font(.system(size: 13))
@@ -29,6 +29,6 @@ struct CalendarRow: View {
 			.contentShape(Rectangle())
 		}
 		.buttonStyle(.plain)
-		.background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
+		.background(isSelected ? Color.accentColor.opacity(0.05) : Color.clear)
 	}
 }

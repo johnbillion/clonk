@@ -7,10 +7,6 @@ struct CalendarSettingsView: View {
 
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
-			Text(NSLocalizedString("calendars", comment: "Calendar settings title"))
-				.font(.headline)
-				.padding(.horizontal)
-
 			if calendarManager.authorizationStatus == .notDetermined {
 				VStack(spacing: 12) {
 					Text(NSLocalizedString("calendar_access_required", comment: "Calendar access required message"))
