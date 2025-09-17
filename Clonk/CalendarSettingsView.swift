@@ -41,31 +41,47 @@ struct CalendarSettingsView: View {
 				.frame(maxWidth: .infinity)
 				.padding()
 			} else {
-				ScrollView {
-					VStack(alignment: .leading, spacing: 4) {
-						ForEach(groupedCalendars().sorted(by: { $0.key < $1.key }), id: \.key) { source, calendars in
-							Section {
-								ForEach(calendars, id: \.calendarIdentifier) { calendar in
-									CalendarRow(
-										calendar: calendar,
-										isSelected: calendarManager.isCalendarSelected(calendar),
-										onToggle: {
-											calendarManager.toggleCalendar(calendar)
-										}
-									)
+				if calendarManager.calendars.isEmpty {
+					VStack(spacing: 12) {
+						Text(NSLocalizedString("no_calendars_found", comment: "No calendars found message"))
+							.font(.subheadline)
+							.foregroundColor(.secondary)
+							.multilineTextAlignment(.center)
+
+						Text(NSLocalizedString("no_calendars_instructions", comment: "Instructions when no calendars found"))
+							.font(.caption)
+							.foregroundColor(.secondary)
+							.multilineTextAlignment(.center)
+					}
+					.frame(maxWidth: .infinity)
+					.padding()
+				} else {
+					ScrollView {
+						VStack(alignment: .leading, spacing: 4) {
+							ForEach(groupedCalendars().sorted(by: { $0.key < $1.key }), id: \.key) { source, calendars in
+								Section {
+									ForEach(calendars, id: \.calendarIdentifier) { calendar in
+										CalendarRow(
+											calendar: calendar,
+											isSelected: calendarManager.isCalendarSelected(calendar),
+											onToggle: {
+												calendarManager.toggleCalendar(calendar)
+											}
+										)
+									}
+								} header: {
+									Text(source)
+										.font(.caption)
+										.foregroundColor(.secondary)
+										.padding(.horizontal)
+										.padding(.top, 8)
 								}
-							} header: {
-								Text(source)
-									.font(.caption)
-									.foregroundColor(.secondary)
-									.padding(.horizontal)
-									.padding(.top, 8)
 							}
 						}
+						.padding(.vertical, 4)
 					}
-					.padding(.vertical, 4)
+					.frame(maxHeight: 300)
 				}
-				.frame(maxHeight: 300)
 			}
 		}
 		.frame(width: 300)

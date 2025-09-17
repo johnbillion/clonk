@@ -5,6 +5,8 @@
 "calendar_access_denied" = "Calendar access denied";
 "calendar_access_instructions" = "Please enable calendar access in System Settings > Privacy & Security > Calendars";
 "open_system_settings" = "Open System Settings";
+"no_calendars_found" = "No calendars found";
+"no_calendars_instructions" = "Create a calendar in the Calendar app or add an account in System Settings > Internet Accounts";
 
 /* App Settings */
 "show_weekends" = "Show weekends";
