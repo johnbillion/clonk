@@ -60,6 +60,7 @@ struct ContentView: View {
 				Button(action: {
 					isPinned.toggle()
 					appDelegate.setPinned(isPinned)
+					savePinState()
 				}) {
 					Image(systemName: isPinned ? "pin.fill" : "pin")
 						.foregroundColor(isPinned ? Color(NSColor.controlAccentColor) : .secondary)
@@ -109,6 +110,10 @@ struct ContentView: View {
 			selectedTimezones = timezoneIdentifiers.compactMap { TimeZone(identifier: $0) }
 		}
 
+		// Load saved pin state
+		isPinned = UserDefaults.standard.bool(forKey: "isPinned")
+		appDelegate.setPinned(isPinned)
+
 		// Sort by timezone offset
 		sortTimezonesByOffset()
 	}
@@ -127,5 +132,9 @@ struct ContentView: View {
 
 	private func saveTimezones() {
 		UserDefaults.standard.set(timezoneIdentifiers, forKey: "selectedTimezoneIdentifiers")
+	}
+
+	private func savePinState() {
+		UserDefaults.standard.set(isPinned, forKey: "isPinned")
 	}
 }
