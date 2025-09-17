@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TimezoneFooterView: View {
+struct TimezoneContainer: View {
 	@Binding var selectedTimezones: [TimeZone]
 	@Binding var timezoneIdentifiers: [String]
 	@State private var currentTime = Date()

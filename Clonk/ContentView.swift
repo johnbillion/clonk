@@ -15,7 +15,7 @@ struct ContentView: View {
 
 	var body: some View {
 		VStack(spacing: 0) {
-			TimezoneFooterView(
+			TimezoneContainer(
 				selectedTimezones: $selectedTimezones, 
 				timezoneIdentifiers: $timezoneIdentifiers,
 				onTimezoneChanged: saveTimezones
