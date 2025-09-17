@@ -35,7 +35,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
 			self.showPopover()
-			self.setPinned(true)
 		}
 	}
 
