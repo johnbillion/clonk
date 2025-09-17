@@ -1,5 +1,14 @@
 import SwiftUI
 
+struct ScaleModifier: ViewModifier {
+	let x: CGFloat
+	let y: CGFloat
+
+	func body(content: Content) -> some View {
+		content.scaleEffect(x: x, y: y, anchor: .center)
+	}
+}
+
 struct TimezoneContainer: View {
 	@Binding var selectedTimezones: [TimeZone]
 	@Binding var timezoneIdentifiers: [String]
@@ -10,6 +19,7 @@ struct TimezoneContainer: View {
 	@State private var isInserting = false
 	@State private var isHovered = false
 	@State private var showPlusButton = false
+	@State private var isPlusButtonHovered = false
 	@State private var hoverTask: Task<Void, Never>?
 
 	let onTimezoneChanged: () -> Void
@@ -17,7 +27,7 @@ struct TimezoneContainer: View {
 	var body: some View {
 		ZStack {
 			HStack(spacing: 0) {
-				ForEach(Array(timezoneIdentifiers.enumerated()), id: \.offset) { index, identifier in
+				ForEach(Array(timezoneIdentifiers.enumerated()), id: \.element) { index, identifier in
 					TimezonePanel(
 						timezone: selectedTimezones[index],
 						timezoneIdentifier: identifier,
@@ -32,14 +42,22 @@ struct TimezoneContainer: View {
 						} : nil,
 						timezoneCount: timezoneIdentifiers.count
 					)
+					.transition(.asymmetric(
+						insertion: .scale(scale: 0, anchor: .center).combined(with: .move(edge: .leading)),
+						removal: AnyTransition.modifier(
+							active: ScaleModifier(x: 0, y: 1),
+							identity: ScaleModifier(x: 1, y: 1)
+						).combined(with: .move(edge: .trailing))
+					))
 
 					if index < selectedTimezones.count - 1 {
 						Divider()
 							.frame(height: 60)
+							.transition(.opacity)
 					}
 				}
 			}
-			
+
 			// Plus button overlapping the right-most timezone
 			if showPlusButton {
 				HStack {
@@ -53,8 +71,12 @@ struct TimezoneContainer: View {
 							.background(Color.white)
 							.clipShape(Circle())
 							.font(.title2)
+							.scaleEffect(isPlusButtonHovered ? 1.1 : 1.0)
 					}
 					.buttonStyle(PlainButtonStyle())
+					.onHover { hovered in
+						isPlusButtonHovered = hovered
+					}
 					.padding(.trailing, 8)
 				}
 			}
@@ -69,10 +91,10 @@ struct TimezoneContainer: View {
 		}
 		.onHover { hovered in
 			isHovered = hovered
-			
+
 			// Cancel previous task
 			hoverTask?.cancel()
-			
+
 			if hovered {
 				// Start intent delay
 				hoverTask = Task {
@@ -93,9 +115,11 @@ struct TimezoneContainer: View {
 				if isInserting {
 					addTimezone(selectedTimezone, identifier: identifier)
 				} else {
-					selectedTimezones[selectedPanelIndex] = selectedTimezone
-					timezoneIdentifiers[selectedPanelIndex] = identifier
-					sortTimezones()
+					withAnimation(.easeInOut(duration: 0.4)) {
+						selectedTimezones[selectedPanelIndex] = selectedTimezone
+						timezoneIdentifiers[selectedPanelIndex] = identifier
+						sortTimezones()
+					}
 				}
 				onTimezoneChanged()
 				showingPicker = false
@@ -105,17 +129,21 @@ struct TimezoneContainer: View {
 
 
 	private func deleteTimezone(at index: Int) {
-		selectedTimezones.remove(at: index)
-		timezoneIdentifiers.remove(at: index)
+		withAnimation(.easeInOut(duration: 0.3)) {
+			selectedTimezones.remove(at: index)
+			timezoneIdentifiers.remove(at: index)
+		}
 		onTimezoneChanged()
 	}
 
 	private func addTimezone(_ timezone: TimeZone, identifier: String) {
-		selectedTimezones.append(timezone)
-		timezoneIdentifiers.append(identifier)
-		sortTimezones()
+		withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+			selectedTimezones.append(timezone)
+			timezoneIdentifiers.append(identifier)
+			sortTimezones()
+		}
 	}
-	
+
 	private func sortTimezones() {
 		let now = Date()
 		let combined = zip(selectedTimezones, timezoneIdentifiers).sorted { timezone1, timezone2 in
@@ -123,7 +151,7 @@ struct TimezoneContainer: View {
 			let offset2 = timezone2.0.secondsFromGMT(for: now)
 			return offset1 < offset2
 		}
-		
+
 		selectedTimezones = combined.map { $0.0 }
 		timezoneIdentifiers = combined.map { $0.1 }
 	}

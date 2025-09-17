@@ -10,6 +10,7 @@ struct TimezonePanel: View {
 	@State private var isHovered = false
 	@State private var isNameButtonHovered = false
 	@State private var showDeleteButton = false
+	@State private var isDeleteButtonHovered = false
 	@State private var hoverTask: Task<Void, Never>?
 
 	private var timeFormatter: DateFormatter {
@@ -86,8 +87,12 @@ struct TimezonePanel: View {
 								.foregroundColor(.red)
 								.background(Color.white)
 								.clipShape(Circle())
+								.scaleEffect(isDeleteButtonHovered ? 1.1 : 1.0)
 						}
 						.buttonStyle(PlainButtonStyle())
+						.onHover { hovered in
+							isDeleteButtonHovered = hovered
+						}
 					}
 					Spacer()
 				}
