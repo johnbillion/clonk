@@ -28,20 +28,29 @@ jobs:
         xcodebuild -version
 
     - name: Build app
-      run: |
-        chmod +x build.sh
-        ./build.sh
+      run: ./build.sh
 
-    - name: Create release archive
-      env:
-        TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
+    - name: Verify build
       run: |
-        cd build
-        zip -r "Clonk-${TAG_NAME}.zip" Clonk.app
+        echo "Checking app bundle structure..."
+        ls -la build/Clonk.app/Contents/
+        ls -la build/Clonk.app/Contents/MacOS/
+        file build/Clonk.app/Contents/MacOS/Clonk
+        echo "Testing app launch..."
+        build/Clonk.app/Contents/MacOS/Clonk &
+        APP_PID=$!
+        sleep 2
+        kill $APP_PID 2>/dev/null || true
+
+    - name: Create DMG
+      run: ./create-dmg.sh
+
+    - name: Test DMG
+      run: ./test-dmg.sh
 
     - name: Upload release asset
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         TAG_NAME: ${{ inputs.tag || github.event.release.tag_name }}
       run: |
-        gh release upload "${TAG_NAME}" "build/Clonk-${TAG_NAME}.zip"
+        gh release upload "${TAG_NAME}" "Clonk.dmg"

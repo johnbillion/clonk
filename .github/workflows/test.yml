@@ -34,10 +34,7 @@ jobs:
         xcodebuild -version
 
     - name: Run all tests
-      run: |
-        cd Clonk
-        chmod +x test.sh
-        ./test.sh
+      run: ./test.sh
 
     - name: Upload test artifacts
       uses: actions/upload-artifact@v3
