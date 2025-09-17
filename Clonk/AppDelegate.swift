@@ -14,7 +14,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		if let button = statusItem.button {
 			updateTimeDisplay()
 			button.action = #selector(togglePopover)
+			button.sendAction(on: [.leftMouseUp, .rightMouseUp])
 		}
+		
 
 		timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
 			self.updateTimeDisplay()
@@ -46,10 +48,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	@objc func togglePopover() {
-		if popover.isShown {
-			closePopover()
+		guard let event = NSApp.currentEvent else { return }
+		
+		if event.type == .rightMouseUp {
+			showMenu()
 		} else {
-			showPopover()
+			if popover.isShown {
+				closePopover()
+			} else {
+				showPopover()
+			}
 		}
 	}
 
@@ -74,6 +82,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		} else {
 			eventMonitor?.start()
 		}
+	}
+	
+	private func setupMenu() {
+		let menu = NSMenu()
+		
+		let quitItem = NSMenuItem(title: "Quit Clonk", action: #selector(quitApp), keyEquivalent: "")
+		menu.addItem(quitItem)
+	}
+	
+	private func showMenu() {
+		guard let button = statusItem.button else { return }
+		let menu = NSMenu()
+		menu.appearance = NSAppearance(named: .aqua)
+		
+		let quitItem = NSMenuItem(title: "Quit Clonk", action: #selector(quitApp), keyEquivalent: "")
+		menu.addItem(quitItem)
+		
+		menu.popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.height), in: button)
+	}
+	
+	
+	@objc private func quitApp() {
+		NSApplication.shared.terminate(nil)
 	}
 }
 
