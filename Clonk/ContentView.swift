@@ -15,6 +15,7 @@ struct ContentView: View {
 	@State private var selectedTimezones: [TimeZone] = []
 	@State private var timezoneIdentifiers: [String] = []
 	@State private var timer: Timer?
+	@StateObject private var appearanceManager = AppearanceManager.shared
 	let appDelegate: AppDelegate
 
 	var body: some View {
@@ -116,6 +117,7 @@ struct ContentView: View {
 		}
 		.frame(width: 480)
 		.background(Color(NSColor.windowBackgroundColor))
+		.preferredColorScheme(appearanceManager.colorScheme)
 		.onAppear {
 			loadSavedTimezones()
 			appDelegate.setPinned(isPinned)

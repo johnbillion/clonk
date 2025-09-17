@@ -11,6 +11,10 @@
 /* App Settings */
 "show_weekends" = "Show weekends";
 "show_date_in_menubar" = "Show date in menubar";
+"appearance" = "Appearance";
+"auto" = "Auto";
+"light" = "Light";
+"dark" = "Dark";
 
 /* Calendar Navigation */
 "today" = "Today";
