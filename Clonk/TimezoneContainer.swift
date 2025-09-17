@@ -1,14 +1,5 @@
 import SwiftUI
 
-struct ScaleModifier: ViewModifier {
-	let x: CGFloat
-	let y: CGFloat
-
-	func body(content: Content) -> some View {
-		content.scaleEffect(x: x, y: y, anchor: .center)
-	}
-}
-
 struct TimezoneContainer: View {
 	@Binding var selectedTimezones: [TimeZone]
 	@Binding var timezoneIdentifiers: [String]
