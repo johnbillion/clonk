@@ -9,6 +9,7 @@ struct InfiniteCalendarView: View {
 	@State private var shouldScrollToSelected = false
 	@State private var loadedMonths: Set<String> = []
 	@StateObject private var calendarManager = CalendarManager.shared
+	@AppStorage("showWeekends") private var showWeekends: Bool = true
 
 	private let calendar: Calendar = {
 		var cal = Calendar.current
@@ -29,13 +30,22 @@ struct InfiniteCalendarView: View {
 		// weekdaySymbols array is always indexed as [Sunday, Monday, Tuesday, ...]
 		// regardless of locale, per Apple documentation
 
-		// Start with Monday (index 1) through Saturday (index 6), then Sunday (index 0)
-		var reordered: [String] = []
-		for i in 1...6 {
-			reordered.append(symbols[i])
+		if showWeekends {
+			// Start with Monday (index 1) through Saturday (index 6), then Sunday (index 0)
+			var reordered: [String] = []
+			for i in 1...6 {
+				reordered.append(symbols[i])
+			}
+			reordered.append(symbols[0]) // Add Sunday at the end
+			return reordered
+		} else {
+			// Only weekdays: Monday through Friday
+			var weekdays: [String] = []
+			for i in 1...5 {
+				weekdays.append(symbols[i])
+			}
+			return weekdays
 		}
-		reordered.append(symbols[0]) // Add Sunday at the end
-		return reordered
 	}
 
 	var body: some View {
@@ -50,11 +60,12 @@ struct InfiniteCalendarView: View {
 				}
 			}
 			.background(Color(NSColor.controlBackgroundColor))
+			.animation(.easeInOut(duration: 0.3), value: showWeekends)
 
 			ScrollViewReader { proxy in
 				ScrollView(showsIndicators: false) {
-					LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: 7), spacing: 0) {
-					ForEach(Array(visibleDates.enumerated()), id: \.element) { index, date in
+					LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: showWeekends ? 7 : 5), spacing: 0) {
+					ForEach(Array(filteredVisibleDates.enumerated()), id: \.element) { index, date in
 						CalendarDayView(
 							date: date,
 							isSelected: calendar.isDate(date, inSameDayAs: selectedDate),
@@ -65,8 +76,12 @@ struct InfiniteCalendarView: View {
 							},
 							isAlternateMonth: isAlternateMonth(date)
 						)
+						.transition(.asymmetric(
+							insertion: .move(edge: .leading).combined(with: .opacity),
+							removal: .move(edge: .trailing).combined(with: .opacity)
+						))
 						.onAppear {
-							if index >= visibleDates.count - 180 && !isLoadingMore {
+							if index >= filteredVisibleDates.count - 180 && !isLoadingMore {
 								loadMoreWeeks()
 							}
 							checkAndLoadEventsForMonth(date)
@@ -74,6 +89,7 @@ struct InfiniteCalendarView: View {
 					}
 				}
 				.padding(.horizontal, 0)
+				.animation(.easeInOut(duration: 0.3), value: showWeekends)
 			}
 			.onAppear {
 				generateInitialDates()
@@ -97,6 +113,17 @@ struct InfiniteCalendarView: View {
 					shouldScrollToToday = false
 				}
 			}
+			}
+		}
+	}
+	
+	private var filteredVisibleDates: [Date] {
+		if showWeekends {
+			return visibleDates
+		} else {
+			return visibleDates.filter { date in
+				let weekday = calendar.component(.weekday, from: date)
+				return weekday != 1 && weekday != 7 // Exclude Sunday (1) and Saturday (7)
 			}
 		}
 	}

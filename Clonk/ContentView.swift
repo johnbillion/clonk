@@ -5,11 +5,13 @@ struct ContentView: View {
 	@State private var todaysDate = Date()
 	@State private var selectedDate = Date()
 	@State private var shouldScrollToToday = false
-	@State private var isPinned = true
+	@AppStorage("isPinned") private var isPinned: Bool = true
 	@State private var isPinHovered = false
 	@State private var isTodayHovered = false
 	@State private var isSettingsHovered = false
+	@State private var isAppSettingsHovered = false
 	@State private var showingCalendarSettings = false
+	@State private var showingAppSettings = false
 	@State private var selectedTimezones: [TimeZone] = []
 	@State private var timezoneIdentifiers: [String] = []
 	@State private var timer: Timer?
@@ -77,9 +79,25 @@ struct ContentView: View {
 				}
 
 				Button(action: {
+					showingAppSettings.toggle()
+				}) {
+					Image(systemName: "gearshape")
+						.foregroundColor(.secondary)
+						.padding(6)
+						.background(isAppSettingsHovered ? Color.gray.opacity(0.15) : Color.clear)
+						.cornerRadius(4)
+				}
+				.buttonStyle(PlainButtonStyle())
+				.onHover { isHovered in
+					isAppSettingsHovered = isHovered
+				}
+				.popover(isPresented: $showingAppSettings, arrowEdge: .bottom) {
+					AppSettingsView()
+				}
+
+				Button(action: {
 					isPinned.toggle()
 					appDelegate.setPinned(isPinned)
-					savePinState()
 				}) {
 					Image(systemName: isPinned ? "pin.fill" : "pin")
 						.foregroundColor(isPinned ? Color(NSColor.controlAccentColor) : .secondary)
@@ -100,6 +118,10 @@ struct ContentView: View {
 		.background(Color(NSColor.windowBackgroundColor))
 		.onAppear {
 			loadSavedTimezones()
+			appDelegate.setPinned(isPinned)
+		}
+		.onChange(of: isPinned) {
+			appDelegate.setPinned(isPinned)
 		}
 	}
 
@@ -129,9 +151,6 @@ struct ContentView: View {
 			selectedTimezones = timezoneIdentifiers.compactMap { TimeZone(identifier: $0) }
 		}
 
-		// Load saved pin state
-		isPinned = UserDefaults.standard.bool(forKey: "isPinned")
-		appDelegate.setPinned(isPinned)
 
 		// Sort by timezone offset
 		sortTimezonesByOffset()
@@ -153,7 +172,4 @@ struct ContentView: View {
 		UserDefaults.standard.set(timezoneIdentifiers, forKey: "selectedTimezoneIdentifiers")
 	}
 
-	private func savePinState() {
-		UserDefaults.standard.set(isPinned, forKey: "isPinned")
-	}
 }
