@@ -266,7 +266,6 @@ class CalendarManager: ObservableObject {
     
     private func handleEventStoreChange() {
         // Reload calendars in case new ones were added or removed
-        let previousCalendarCount = calendars.count
         loadCalendars()
         
         // Reload events for all previously loaded months
