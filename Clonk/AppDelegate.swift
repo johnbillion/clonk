@@ -39,8 +39,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	}
 
 	func updateTimeDisplay() {
+		// Register default if not already set
+		if UserDefaults.standard.object(forKey: "showDateInMenubar") == nil {
+			UserDefaults.standard.set(true, forKey: "showDateInMenubar")
+		}
+		
+		let showDateInMenubar = UserDefaults.standard.bool(forKey: "showDateInMenubar")
 		let formatter = DateFormatter()
-		formatter.dateFormat = "HH:mm"
+		
+		if showDateInMenubar {
+			formatter.dateFormat = "E d MMM HH:mm"
+		} else {
+			formatter.dateFormat = "HH:mm"
+		}
+		
 		if let button = statusItem.button {
 			button.title = formatter.string(from: Date())
 		}

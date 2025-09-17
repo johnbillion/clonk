@@ -92,7 +92,7 @@ struct ContentView: View {
 					isAppSettingsHovered = isHovered
 				}
 				.popover(isPresented: $showingAppSettings, arrowEdge: .bottom) {
-					AppSettingsView()
+					AppSettingsView(appDelegate: appDelegate)
 				}
 
 				Button(action: {

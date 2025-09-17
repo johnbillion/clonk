@@ -8,6 +8,7 @@
 
 /* App Settings */
 "show_weekends" = "Show weekends";
+"show_date_in_menubar" = "Show date in menubar";
 
 /* Calendar Navigation */
 "today" = "Today";
