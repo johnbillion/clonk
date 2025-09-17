@@ -3,7 +3,7 @@ import SwiftUI
 struct TimezonePickerView: View {
 	let onSelection: (TimeZone, String) -> Void
 	@State private var searchText = ""
-	
+
 	private var availableTimezones: [(TimeZone, String)] {
 		let now = Date()
 		let allTimezones = TimeZone.knownTimeZoneIdentifiers
@@ -20,17 +20,17 @@ struct TimezonePickerView: View {
 				}
 				return offset1 < offset2
 			}
-		
+
 		if searchText.isEmpty {
 			return allTimezones
 		} else {
-			return allTimezones.filter { 
+			return allTimezones.filter {
 				$0.1.localizedCaseInsensitiveContains(searchText) ||
 				$0.0.identifier.localizedCaseInsensitiveContains(searchText)
 			}
 		}
 	}
-	
+
 	private func friendlyName(for timezone: TimeZone) -> String {
 		// Use the system localized name or format the identifier
 		if let localizedName = timezone.localizedName(for: .generic, locale: .current) {
@@ -41,26 +41,26 @@ struct TimezonePickerView: View {
 			}
 			return localizedName
 		}
-		
+
 		// Fallback: format the identifier nicely
 		let components = timezone.identifier.components(separatedBy: "/")
 		if let city = components.last {
 			return city.replacingOccurrences(of: "_", with: " ")
 		}
-		
+
 		return timezone.identifier
 	}
-	
+
 	var body: some View {
 		VStack {
 			Text("Select Timezone")
 				.font(.headline)
 				.padding(.top)
-			
+
 			TextField("Search timezones...", text: $searchText)
 				.textFieldStyle(RoundedBorderTextFieldStyle())
 				.padding(.horizontal)
-			
+
 			List(availableTimezones, id: \.0.identifier) { timezone, displayName in
 				Button(action: {
 					// Pass both the timezone and its original identifier
@@ -81,7 +81,7 @@ struct TimezonePickerView: View {
 		}
 		.frame(width: 400, height: 500)
 	}
-	
+
 	private func currentTimeString(for timezone: TimeZone) -> String {
 		let formatter = DateFormatter()
 		formatter.timeZone = timezone
