@@ -41,7 +41,7 @@ struct ContentView: View {
 					selectedDate = todaysDate
 					shouldScrollToToday = true
 				}) {
-					Text("Today")
+					Text(NSLocalizedString("today", comment: "Today button"))
 						.foregroundColor(Color(NSColor.controlAccentColor))
 						.padding(.horizontal, 8)
 						.padding(.vertical, 4)

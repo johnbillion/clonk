@@ -1,0 +1,26 @@
+/* Calendar Settings */
+"calendars" = "Calendars";
+"calendar_access_required" = "Calendar access required";
+"grant_access" = "Grant Access";
+"calendar_access_denied" = "Calendar access denied";
+"calendar_access_instructions" = "Please enable calendar access in System Settings > Privacy & Security > Calendars";
+"open_system_settings" = "Open System Settings";
+
+/* App Settings */
+"show_weekends" = "Show weekends";
+
+/* Calendar Navigation */
+"today" = "Today";
+
+/* Usage Descriptions (Info.plist) */
+"calendars_usage_description" = "Clonk needs access to your calendars to display events in the calendar view.";
+"calendars_full_access_usage_description" = "Clonk needs full calendar access to display and manage your calendar events.";
+
+/* Debug/Development */
+"refreshed_events_due_to_change" = "Refreshed events due to calendar database change";
+"directory_changed_rescanning" = "Directory changed, rescanning for new files...";
+"live_reload_enabled" = "Live reload enabled - edit Swift files to trigger rebuild";
+"rebuilding_at_time" = "Rebuilding at %@...";
+"build_complete_at_time" = "Build complete at %@, restarting app...";
+"build_failed_at_time" = "Build failed at %@";
+"watching_for_changes" = "Watching for changes...";

@@ -27,8 +27,8 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2025 John Blackbourn. All rights reserved.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>Clonk needs access to your calendars to display events in the calendar view.</string>
+	<string>$(calendars_usage_description)</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>Clonk needs full calendar access to display and manage your calendar events.</string>
+	<string>$(calendars_full_access_usage_description)</string>
 </dict>
 </plist>

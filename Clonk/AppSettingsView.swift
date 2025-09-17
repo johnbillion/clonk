@@ -6,7 +6,7 @@ struct AppSettingsView: View {
 	var body: some View {
 		VStack(alignment: .leading, spacing: 12) {
 			VStack(alignment: .leading, spacing: 8) {
-				Toggle("Show weekends", isOn: $showWeekends)
+				Toggle(NSLocalizedString("show_weekends", comment: "Show weekends toggle"), isOn: $showWeekends)
 					.padding(.horizontal)
 			}
 		}

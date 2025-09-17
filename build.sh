@@ -24,6 +24,10 @@ if swiftc Clonk/*.swift \
 
 	# Copy Info.plist
 	cp Clonk/Info.plist "$APP_BUNDLE/Contents/"
+	
+	# Copy Localizable.strings
+	mkdir -p "$APP_BUNDLE/Contents/Resources/en.lproj"
+	cp Clonk/Localizable.strings "$APP_BUNDLE/Contents/Resources/en.lproj/"
 
 	# Copy app icon if it exists
 	if [ -f "Clonk/AppIcon.icns" ]; then
