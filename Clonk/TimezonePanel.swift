@@ -96,7 +96,7 @@ struct TimezonePanel: View {
 						HStack {
 							Button(action: onAddLeft) {
 								Image(systemName: "plus.circle.fill")
-									.foregroundColor(.blue)
+									.foregroundColor(Color(NSColor.controlAccentColor))
 									.background(Color.white)
 									.clipShape(Circle())
 									.font(.system(size: 14))
@@ -117,7 +117,7 @@ struct TimezonePanel: View {
 
 							Button(action: onAddRight) {
 								Image(systemName: "plus.circle.fill")
-									.foregroundColor(.blue)
+									.foregroundColor(Color(NSColor.controlAccentColor))
 									.background(Color.white)
 									.clipShape(Circle())
 									.font(.system(size: 14))

@@ -54,7 +54,7 @@ struct TimezoneContainer: View {
 					showingPicker = true
 				}) {
 					Image(systemName: "plus.circle")
-						.foregroundColor(.blue)
+						.foregroundColor(Color(NSColor.controlAccentColor))
 						.font(.title2)
 				}
 				.buttonStyle(PlainButtonStyle())
@@ -63,7 +63,7 @@ struct TimezoneContainer: View {
 			}
 		}
 		.frame(height: 60)
-		.background(Color.white)
+		.background(Color(NSColor.windowBackgroundColor))
 		.onAppear {
 			startTimer()
 		}

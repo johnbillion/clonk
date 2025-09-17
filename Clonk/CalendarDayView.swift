@@ -46,7 +46,7 @@ struct CalendarDayView: View {
 		if isSelected {
 			return .white
 		} else if isToday {
-			return .blue
+			return Color(NSColor.controlAccentColor)
 		} else {
 			return .primary
 		}
@@ -54,7 +54,7 @@ struct CalendarDayView: View {
 
 	private var backgroundColor: Color {
 		if isSelected {
-			return .blue
+			return Color(NSColor.controlAccentColor)
 		} else if isWeekend {
 			return Color.gray.opacity(0.1)
 		} else if isAlternateMonth {

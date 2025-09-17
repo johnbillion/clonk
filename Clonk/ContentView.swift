@@ -38,7 +38,7 @@ struct ContentView: View {
 					shouldScrollToToday = true
 				}) {
 					Text("Today")
-						.foregroundColor(.blue)
+						.foregroundColor(Color(NSColor.controlAccentColor))
 						.padding(.horizontal, 8)
 						.padding(.vertical, 4)
 						.background(isTodayHovered ? Color.gray.opacity(0.15) : Color.clear)
@@ -62,7 +62,7 @@ struct ContentView: View {
 					appDelegate.setPinned(isPinned)
 				}) {
 					Image(systemName: isPinned ? "pin.fill" : "pin")
-						.foregroundColor(isPinned ? .blue : .secondary)
+						.foregroundColor(isPinned ? Color(NSColor.controlAccentColor) : .secondary)
 						.padding(6)
 						.background(isPinHovered ? Color.gray.opacity(0.15) : Color.clear)
 						.cornerRadius(4)
@@ -74,10 +74,10 @@ struct ContentView: View {
 			}
 			.padding(.horizontal)
 			.padding(.vertical, 8)
-			.background(Color.white)
+			.background(Color(NSColor.windowBackgroundColor))
 		}
 		.frame(width: 480)
-		.background(Color.white)
+		.background(Color(NSColor.windowBackgroundColor))
 		.onAppear {
 			loadSavedTimezones()
 		}
