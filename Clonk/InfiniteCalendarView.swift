@@ -76,10 +76,6 @@ struct InfiniteCalendarView: View {
 							},
 							isAlternateMonth: isAlternateMonth(date)
 						)
-						.transition(.asymmetric(
-							insertion: .move(edge: .leading).combined(with: .opacity),
-							removal: .move(edge: .trailing).combined(with: .opacity)
-						))
 						.onAppear {
 							if index >= filteredVisibleDates.count - 180 && !isLoadingMore {
 								loadMoreWeeks()
