@@ -3,8 +3,22 @@ name: Test
 on:
   push:
     branches: [ main, trunk ]
+    paths:
+      - 'Clonk/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'build.sh'
+      - 'test.sh'
+      - '.github/workflows/test.yml'
   pull_request:
     branches: [ main, trunk ]
+    paths:
+      - 'Clonk/**'
+      - 'Tests/**'
+      - 'Package.swift'
+      - 'build.sh'
+      - 'test.sh'
+      - '.github/workflows/test.yml'
 
 jobs:
   test:
