@@ -33,6 +33,10 @@ if swiftc Clonk/*.swift \
 		echo "⚠️  No app icon found (run ./create-icon.sh to generate one)"
 	fi
 
+	# Ad-hoc code sign to avoid Gatekeeper issues
+	echo "Code signing app..."
+	codesign --force --deep --sign - "$APP_BUNDLE" 2>/dev/null || echo "⚠️  Code signing failed (continuing anyway)"
+
 	echo "Build complete! Run with: open build/Clonk.app"
 else
 	echo "❌ Swift compilation failed"
