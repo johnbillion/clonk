@@ -39,7 +39,7 @@ struct CalendarDayView: View {
 						ForEach(Array(events.prefix(3)), id: \.eventIdentifier) { event in
 							Circle()
 								.fill(Color(cgColor: event.calendar.cgColor))
-								.frame(width: 4, height: 4)
+								.frame(width: 8, height: 8)
 						}
 						if events.count > 3 {
 							Text("+\(events.count - 3)")

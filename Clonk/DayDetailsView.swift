@@ -52,13 +52,23 @@ struct DayDetailsView: View {
 			
 			// Details panel
 			VStack(spacing: 0) {
-				// Header with date
-				HStack {
-					Text(dateFormatter.string(from: date))
-						.font(.headline)
-						.foregroundColor(.primary)
-					Spacer()
+				// Header with date and all-day events
+				FlowLayout(spacing: 8) {
+					// Date as a chip (no background)
+					HStack(spacing: 6) {
+						Text(dateFormatter.string(from: date))
+							.font(.subheadline)
+							.foregroundColor(.primary)
+					}
+					.padding(.horizontal, 8)
+					.padding(.vertical, 4)
+					
+					// All day events as chips
+					ForEach(allDayEvents, id: \.eventIdentifier) { event in
+						EventChipView(event: event)
+					}
 				}
+				.frame(maxWidth: .infinity, alignment: .leading)
 				.padding(.horizontal, 16)
 				.padding(.vertical, 12)
 				.background(Color(NSColor.controlBackgroundColor))
@@ -68,29 +78,6 @@ struct DayDetailsView: View {
 				// Content area
 				ScrollView {
 					VStack(spacing: 0) {
-						// All day events section
-						if !allDayEvents.isEmpty {
-							VStack(alignment: .leading, spacing: 8) {
-								HStack {
-									Text("All Day")
-										.font(.system(size: 12, weight: .semibold))
-										.foregroundColor(.secondary)
-									Spacer()
-								}
-								.padding(.horizontal, 16)
-								.padding(.top, 12)
-								
-								ForEach(allDayEvents, id: \.eventIdentifier) { event in
-									EventRowView(event: event, showTime: false)
-								}
-							}
-							
-							if !morningEvents.isEmpty || !afternoonEvents.isEmpty {
-								Divider()
-									.padding(.vertical, 8)
-							}
-						}
-						
 						// Timed events section
 						if !morningEvents.isEmpty || !afternoonEvents.isEmpty {
 							HStack(alignment: .top, spacing: 0) {
@@ -106,8 +93,8 @@ struct DayDetailsView: View {
 									
 									if morningEvents.isEmpty {
 										Text("No events")
-											.font(.caption)
-											.foregroundStyle(.tertiary)
+											.font(.system(size: 13))
+											.foregroundColor(.secondary)
 											.padding(.horizontal, 16)
 											.padding(.vertical, 8)
 									} else {
@@ -138,8 +125,8 @@ struct DayDetailsView: View {
 									
 									if afternoonEvents.isEmpty {
 										Text("No events")
-											.font(.caption)
-											.foregroundStyle(.tertiary)
+											.font(.system(size: 13))
+											.foregroundColor(.secondary)
 											.padding(.horizontal, 16)
 											.padding(.vertical, 8)
 									} else {
@@ -159,11 +146,11 @@ struct DayDetailsView: View {
 						if allDayEvents.isEmpty && morningEvents.isEmpty && afternoonEvents.isEmpty {
 							VStack(spacing: 8) {
 								Text("No events")
-									.font(.subheadline)
-									.foregroundColor(.secondary)
+									.font(.system(size: 15))
+									.foregroundColor(.primary)
 								Text("This day has no scheduled events")
-									.font(.caption)
-									.foregroundStyle(.tertiary)
+									.font(.system(size: 13))
+									.foregroundColor(.secondary)
 							}
 							.padding(.vertical, 32)
 						}
@@ -223,5 +210,75 @@ struct Triangle: Shape {
 		path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
 		path.closeSubpath()
 		return path
+	}
+}
+
+struct EventChipView: View {
+	let event: EKEvent
+	
+	var body: some View {
+		HStack(spacing: 6) {
+			Circle()
+				.fill(Color(cgColor: event.calendar.cgColor))
+				.frame(width: 8, height: 8)
+			
+			Text(event.title)
+				.font(.system(size: 12))
+				.foregroundColor(.primary)
+				.lineLimit(1)
+		}
+		.padding(.horizontal, 8)
+		.padding(.vertical, 4)
+		.background(Color.gray.opacity(0.1))
+		.cornerRadius(12)
+	}
+}
+
+struct FlowLayout: Layout {
+	var spacing: CGFloat
+	
+	init(spacing: CGFloat = 8) {
+		self.spacing = spacing
+	}
+	
+	func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+		let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+		return layout(sizes: sizes, proposal: proposal).size
+	}
+	
+	func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+		let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+		let positions = layout(sizes: sizes, proposal: proposal).positions
+		
+		for (index, subview) in subviews.enumerated() {
+			subview.place(at: CGPoint(x: bounds.minX + positions[index].x, y: bounds.minY + positions[index].y), proposal: .unspecified)
+		}
+	}
+	
+	private func layout(sizes: [CGSize], proposal: ProposedViewSize) -> (size: CGSize, positions: [CGPoint]) {
+		let maxWidth = proposal.width ?? .infinity
+		var positions: [CGPoint] = []
+		var currentRowWidth: CGFloat = 0
+		var currentRowHeight: CGFloat = 0
+		var totalHeight: CGFloat = 0
+		var currentY: CGFloat = 0
+		
+		for (index, size) in sizes.enumerated() {
+			if currentRowWidth + size.width > maxWidth && currentRowWidth > 0 {
+				// Start new row
+				totalHeight += currentRowHeight + spacing
+				currentY += currentRowHeight + spacing
+				currentRowWidth = 0
+				currentRowHeight = 0
+			}
+			
+			positions.append(CGPoint(x: currentRowWidth, y: currentY))
+			currentRowWidth += size.width + (index < sizes.count - 1 ? spacing : 0)
+			currentRowHeight = max(currentRowHeight, size.height)
+		}
+		
+		totalHeight += currentRowHeight
+		
+		return (CGSize(width: min(currentRowWidth, maxWidth), height: totalHeight), positions)
 	}
 }
