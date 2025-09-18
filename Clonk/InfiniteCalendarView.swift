@@ -56,7 +56,7 @@ struct InfiniteCalendarView: View {
 			calendarScrollView
 		}
 	}
-	
+
 	private var headerView: some View {
 		HStack(spacing: 0) {
 			ForEach(weekdaySymbols, id: \.self) { day in
@@ -70,7 +70,7 @@ struct InfiniteCalendarView: View {
 		.background(Color(NSColor.controlBackgroundColor))
 		.animation(.easeInOut(duration: 0.3), value: showWeekends)
 	}
-	
+
 	private var calendarScrollView: some View {
 		ScrollViewReader { proxy in
 			ScrollView(showsIndicators: false) {
@@ -78,7 +78,7 @@ struct InfiniteCalendarView: View {
 					ForEach(Array(weekGroups.enumerated()), id: \.offset) { weekIndex, week in
 						weekRowView(for: week, weekIndex: weekIndex, proxy: proxy)
 							.id("week-\(weekIndex)")
-						
+
 						detailsViewIfNeeded(for: week, weekIndex: weekIndex)
 					}
 				}
@@ -117,7 +117,7 @@ struct InfiniteCalendarView: View {
 			}
 		}
 	}
-	
+
 	@ViewBuilder
 	private func detailsViewIfNeeded(for week: [Date], weekIndex: Int) -> some View {
 		if let detailsDate = selectedDayForDetails,
@@ -145,12 +145,12 @@ struct InfiniteCalendarView: View {
 			}
 		}
 	}
-	
+
 	private var weekGroups: [[Date]] {
 		let dates = filteredVisibleDates
 		let daysPerWeek = showWeekends ? 7 : 5
 		var weeks: [[Date]] = []
-		
+
 		for i in stride(from: 0, to: dates.count, by: daysPerWeek) {
 			let endIndex = min(i + daysPerWeek, dates.count)
 			let week = Array(dates[i..<endIndex])
@@ -158,10 +158,10 @@ struct InfiniteCalendarView: View {
 				weeks.append(week)
 			}
 		}
-		
+
 		return weeks
 	}
-	
+
 	@ViewBuilder
 	private func weekRowView(for week: [Date], weekIndex: Int, proxy: ScrollViewProxy) -> some View {
 		HStack(spacing: 0) {
@@ -187,7 +187,7 @@ struct InfiniteCalendarView: View {
 			}
 		}
 	}
-	
+
 	@ViewBuilder
 	private func detailsOverlay(for detailsDate: Date, proxy: ScrollViewProxy) -> some View {
 		// Simple test - just show a colored rectangle to confirm overlay is working
@@ -202,26 +202,26 @@ struct InfiniteCalendarView: View {
 				print("DEBUG: Details overlay appearing for date: \(detailsDate)")
 			}
 	}
-	
+
 	private func calculateDayPosition(for date: Date, in geometry: GeometryProxy) -> CGFloat {
 		// Find which day of the week this date is
 		let dayOfWeek = (calendar.component(.weekday, from: date) + 5) % 7 // Convert to Monday=0 format
 		let adjustedDayOfWeek = showWeekends ? dayOfWeek : min(dayOfWeek, 4) // Limit to weekdays if needed
-		
+
 		let dayWidth = geometry.size.width / CGFloat(showWeekends ? 7 : 5)
 		return CGFloat(adjustedDayOfWeek) * dayWidth + dayWidth / 2
 	}
-	
+
 	private func calculateWeekRowPosition(for date: Date, in geometry: GeometryProxy) -> CGFloat {
 		// Find which week row contains this date
 		let daysPerWeek = showWeekends ? 7 : 5
-		
+
 		// Find the index of this date in filteredVisibleDates
 		if let dateIndex = filteredVisibleDates.firstIndex(where: { calendar.isDate($0, inSameDayAs: date) }) {
 			let weekIndex = dateIndex / daysPerWeek
 			return CGFloat(weekIndex) * 52 // 52 is the day height
 		}
-		
+
 		return 0
 	}
 
@@ -258,25 +258,25 @@ struct InfiniteCalendarView: View {
 			let scrollTarget = calculateScrollTargetForToday(for: selectedDate)
 			print("DEBUG: scrollToSelectedDate - selectedDate: \(selectedDate)")
 			print("DEBUG: scrollToSelectedDate - scrollTarget: \(scrollTarget)")
-			
+
 			withAnimation(.easeInOut(duration: 0.3)) {
 				proxy.scrollTo(scrollTarget, anchor: .top)
 			}
 		})
 	}
-	
+
 	private func scrollToTodaysDate(proxy: ScrollViewProxy) {
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
 			let scrollTarget = calculateScrollTargetForToday(for: todaysDate)
 			print("DEBUG: scrollToTodaysDate - todaysDate: \(todaysDate)")
 			print("DEBUG: scrollToTodaysDate - scrollTarget: \(scrollTarget)")
-			
+
 			withAnimation(.easeInOut(duration: 0.3)) {
 				proxy.scrollTo(scrollTarget, anchor: .top)
 			}
 		})
 	}
-	
+
 	private func calculateScrollTargetForToday(for date: Date) -> String {
 		// Find which week contains this date and scroll to 1 week before (second row)
 		for (weekIndex, week) in weekGroups.enumerated() {
@@ -287,12 +287,12 @@ struct InfiniteCalendarView: View {
 				return scrollTarget
 			}
 		}
-		
+
 		// Fallback to first week
 		print("DEBUG: calculateScrollTargetForToday - date not found, scrolling to week-0")
 		return "week-0"
 	}
-	
+
 	private func calculateScrollTargetForDetails(for date: Date) -> String {
 		// Find which week contains this date and scroll to that week (top row)
 		for (weekIndex, week) in weekGroups.enumerated() {
@@ -302,7 +302,7 @@ struct InfiniteCalendarView: View {
 				return scrollTarget
 			}
 		}
-		
+
 		// Fallback to first week
 		print("DEBUG: calculateScrollTargetForDetails - date not found, scrolling to week-0")
 		return "week-0"
@@ -354,13 +354,13 @@ struct InfiniteCalendarView: View {
 			calendarManager.loadEventsForMonth(containing: date, forceReload: forceReload)
 		}
 	}
-	
+
 	private func handleDayTap(date: Date, proxy: ScrollViewProxy) {
 		print("DEBUG: handleDayTap called for date: \(date)")
 		print("DEBUG: Current selectedDayForDetails: \(String(describing: selectedDayForDetails))")
 		selectedDate = date
 		shouldScrollToSelected = calendar.isDate(date, inSameDayAs: todaysDate)
-		
+
 		// Toggle details view for the same day
 		if let currentDetailsDate = selectedDayForDetails,
 		   calendar.isDate(date, inSameDayAs: currentDetailsDate) {
@@ -368,14 +368,14 @@ struct InfiniteCalendarView: View {
 			selectedDayForDetails = nil
 		} else {
 			print("DEBUG: Opening details for \(date)")
-			
+
 			selectedDayForDetails = date
 			print("DEBUG: Updated selectedDayForDetails to: \(date)")
-			
+
 			// Calculate scroll target AFTER updating selectedDayForDetails
 			let scrollTarget = calculateScrollTargetForDetails(for: date)
 			print("DEBUG: Calculated scroll target: \(scrollTarget)")
-			
+
 			// Delay scroll slightly to let UI update
 			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
 				print("DEBUG: Scrolling for details to: \(scrollTarget)")
@@ -387,4 +387,3 @@ struct InfiniteCalendarView: View {
 		print("DEBUG: Final selectedDayForDetails: \(String(describing: selectedDayForDetails))")
 	}
 }
-

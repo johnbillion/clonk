@@ -207,5 +207,4 @@ struct ContentView: View {
 	private func saveTimezones() {
 		UserDefaults.standard.set(timezoneIdentifiers, forKey: "selectedTimezoneIdentifiers")
 	}
-
 }
