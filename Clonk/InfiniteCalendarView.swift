@@ -10,6 +10,8 @@ struct InfiniteCalendarView: View {
 	@State private var loadedMonths: Set<String> = []
 	@StateObject private var calendarManager = CalendarManager.shared
 	@AppStorage("showWeekends") private var showWeekends: Bool = true
+	@State private var selectedDayForDetails: Date?
+	@State private var shouldScrollToSelectedDay = false
 
 	private let calendar: Calendar = {
 		var cal = Calendar.current
@@ -50,52 +52,47 @@ struct InfiniteCalendarView: View {
 
 	var body: some View {
 		VStack(spacing: 0) {
-			HStack(spacing: 0) {
-				ForEach(weekdaySymbols, id: \.self) { day in
-					Text(day)
-						.font(.system(size: 12, weight: .medium))
-						.foregroundColor(.secondary)
-						.frame(maxWidth: .infinity)
-						.frame(height: 24)
-				}
+			headerView
+			calendarScrollView
+		}
+	}
+	
+	private var headerView: some View {
+		HStack(spacing: 0) {
+			ForEach(weekdaySymbols, id: \.self) { day in
+				Text(day)
+					.font(.system(size: 12, weight: .medium))
+					.foregroundColor(.secondary)
+					.frame(maxWidth: .infinity)
+					.frame(height: 24)
 			}
-			.background(Color(NSColor.controlBackgroundColor))
-			.animation(.easeInOut(duration: 0.3), value: showWeekends)
-
-			ScrollViewReader { proxy in
-				ScrollView(showsIndicators: false) {
-					LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 0), count: showWeekends ? 7 : 5), spacing: 0) {
-					ForEach(Array(filteredVisibleDates.enumerated()), id: \.element) { index, date in
-						CalendarDayView(
-							date: date,
-							isSelected: calendar.isDate(date, inSameDayAs: selectedDate),
-							isToday: calendar.isDate(date, inSameDayAs: todaysDate),
-							onTap: {
-								selectedDate = date
-								shouldScrollToSelected = calendar.isDate(date, inSameDayAs: todaysDate)
-							},
-							isAlternateMonth: isAlternateMonth(date)
-						)
-						.onAppear {
-							if index >= filteredVisibleDates.count - 180 && !isLoadingMore {
-								loadMoreWeeks()
-							}
-							checkAndLoadEventsForMonth(date)
-						}
+		}
+		.background(Color(NSColor.controlBackgroundColor))
+		.animation(.easeInOut(duration: 0.3), value: showWeekends)
+	}
+	
+	private var calendarScrollView: some View {
+		ScrollViewReader { proxy in
+			ScrollView(showsIndicators: false) {
+				LazyVStack(spacing: 0) {
+					ForEach(Array(weekGroups.enumerated()), id: \.offset) { weekIndex, week in
+						weekRowView(for: week, weekIndex: weekIndex, proxy: proxy)
+							.id("week-\(weekIndex)")
+						
+						detailsViewIfNeeded(for: week, weekIndex: weekIndex)
 					}
 				}
 				.padding(.horizontal, 0)
-				.animation(.easeInOut(duration: 0.3), value: showWeekends)
 			}
+			.animation(.easeInOut(duration: 0.3), value: showWeekends)
+			.animation(.easeInOut(duration: 0.3), value: selectedDayForDetails)
 			.onAppear {
 				generateInitialDates()
 				scrollToSelectedDate(proxy: proxy)
-				// Load events for the initial visible months
 				calendarManager.loadEventsForMonth(containing: selectedDate)
 			}
 			.onReceive(calendarManager.objectWillChange) { _ in
 				// When calendar manager changes, just clear our local tracking
-				// The calendar manager will handle reloading
 			}
 			.onChange(of: selectedDate) {
 				if shouldScrollToSelected {
@@ -104,12 +101,37 @@ struct InfiniteCalendarView: View {
 				}
 			}
 			.onChange(of: shouldScrollToToday) {
+				print("DEBUG: onChange shouldScrollToToday: \(shouldScrollToToday)")
 				if shouldScrollToToday {
-					scrollToSelectedDate(proxy: proxy)
+					print("DEBUG: Calling scrollToTodaysDate...")
+					scrollToTodaysDate(proxy: proxy)
 					shouldScrollToToday = false
+					print("DEBUG: Reset shouldScrollToToday to false")
 				}
 			}
+			.onChange(of: shouldScrollToSelectedDay) {
+				if shouldScrollToSelectedDay {
+					scrollToSelectedDate(proxy: proxy)
+					shouldScrollToSelectedDay = false
+				}
 			}
+		}
+	}
+	
+	@ViewBuilder
+	private func detailsViewIfNeeded(for week: [Date], weekIndex: Int) -> some View {
+		if let detailsDate = selectedDayForDetails,
+		   week.contains(where: { calendar.isDate($0, inSameDayAs: detailsDate) }) {
+			GeometryReader { geometry in
+				DayDetailsView(
+					date: detailsDate,
+					selectedDayPosition: CGPoint(x: calculateDayPosition(for: detailsDate, in: geometry), y: 0),
+					gridWidth: geometry.size.width
+				)
+				.padding(.horizontal, 0)
+			}
+			.frame(height: 260)
+			.transition(.opacity.combined(with: .move(edge: .top)))
 		}
 	}
 
@@ -122,6 +144,84 @@ struct InfiniteCalendarView: View {
 				return weekday != 1 && weekday != 7 // Exclude Sunday (1) and Saturday (7)
 			}
 		}
+	}
+	
+	private var weekGroups: [[Date]] {
+		let dates = filteredVisibleDates
+		let daysPerWeek = showWeekends ? 7 : 5
+		var weeks: [[Date]] = []
+		
+		for i in stride(from: 0, to: dates.count, by: daysPerWeek) {
+			let endIndex = min(i + daysPerWeek, dates.count)
+			let week = Array(dates[i..<endIndex])
+			if week.count == daysPerWeek {
+				weeks.append(week)
+			}
+		}
+		
+		return weeks
+	}
+	
+	@ViewBuilder
+	private func weekRowView(for week: [Date], weekIndex: Int, proxy: ScrollViewProxy) -> some View {
+		HStack(spacing: 0) {
+			ForEach(week, id: \.self) { date in
+				CalendarDayView(
+					date: date,
+					isSelected: calendar.isDate(date, inSameDayAs: selectedDate),
+					isToday: calendar.isDate(date, inSameDayAs: todaysDate),
+					onTap: {
+						handleDayTap(date: date, proxy: proxy)
+					},
+					isAlternateMonth: isAlternateMonth(date)
+				)
+				.id(date)
+				.onAppear {
+					let totalDaysBeforeThisWeek = weekIndex * (showWeekends ? 7 : 5)
+					if totalDaysBeforeThisWeek >= filteredVisibleDates.count - 180 && !isLoadingMore {
+						loadMoreWeeks()
+					}
+					checkAndLoadEventsForMonth(date)
+				}
+			}
+		}
+	}
+	
+	@ViewBuilder
+	private func detailsOverlay(for detailsDate: Date, proxy: ScrollViewProxy) -> some View {
+		// Simple test - just show a colored rectangle to confirm overlay is working
+		Color.blue.opacity(0.3)
+			.frame(width: 300, height: 200)
+			.overlay(
+				Text("Details for \(detailsDate.formatted())")
+					.foregroundColor(.white)
+			)
+			.offset(y: 100) // Position it below the header
+			.onAppear {
+				print("DEBUG: Details overlay appearing for date: \(detailsDate)")
+			}
+	}
+	
+	private func calculateDayPosition(for date: Date, in geometry: GeometryProxy) -> CGFloat {
+		// Find which day of the week this date is
+		let dayOfWeek = (calendar.component(.weekday, from: date) + 5) % 7 // Convert to Monday=0 format
+		let adjustedDayOfWeek = showWeekends ? dayOfWeek : min(dayOfWeek, 4) // Limit to weekdays if needed
+		
+		let dayWidth = geometry.size.width / CGFloat(showWeekends ? 7 : 5)
+		return CGFloat(adjustedDayOfWeek) * dayWidth + dayWidth / 2
+	}
+	
+	private func calculateWeekRowPosition(for date: Date, in geometry: GeometryProxy) -> CGFloat {
+		// Find which week row contains this date
+		let daysPerWeek = showWeekends ? 7 : 5
+		
+		// Find the index of this date in filteredVisibleDates
+		if let dateIndex = filteredVisibleDates.firstIndex(where: { calendar.isDate($0, inSameDayAs: date) }) {
+			let weekIndex = dateIndex / daysPerWeek
+			return CGFloat(weekIndex) * 52 // 52 is the day height
+		}
+		
+		return 0
 	}
 
 	private func generateInitialDates() {
@@ -153,17 +253,58 @@ struct InfiniteCalendarView: View {
 	}
 
 	private func scrollToSelectedDate(proxy: ScrollViewProxy) {
-		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-			let targetDate = calendar.startOfDay(for: selectedDate)
-			let mondayOfTargetWeek = startOfWeek(for: targetDate)
-			let mondayOneWeekBefore = calendar.date(byAdding: .day, value: -7, to: mondayOfTargetWeek) ?? mondayOfTargetWeek
-
-			if let scrollToDate = filteredVisibleDates.first(where: { calendar.isDate($0, inSameDayAs: mondayOneWeekBefore) }) {
-				withAnimation(.easeInOut(duration: 0.3)) {
-					proxy.scrollTo(scrollToDate, anchor: UnitPoint.top)
-				}
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+			let scrollTarget = calculateScrollTargetForToday(for: selectedDate)
+			print("DEBUG: scrollToSelectedDate - selectedDate: \(selectedDate)")
+			print("DEBUG: scrollToSelectedDate - scrollTarget: \(scrollTarget)")
+			
+			withAnimation(.easeInOut(duration: 0.3)) {
+				proxy.scrollTo(scrollTarget, anchor: .top)
+			}
+		})
+	}
+	
+	private func scrollToTodaysDate(proxy: ScrollViewProxy) {
+		DispatchQueue.main.asyncAfter(deadline: .now() + 0.1, execute: {
+			let scrollTarget = calculateScrollTargetForToday(for: todaysDate)
+			print("DEBUG: scrollToTodaysDate - todaysDate: \(todaysDate)")
+			print("DEBUG: scrollToTodaysDate - scrollTarget: \(scrollTarget)")
+			
+			withAnimation(.easeInOut(duration: 0.3)) {
+				proxy.scrollTo(scrollTarget, anchor: .top)
+			}
+		})
+	}
+	
+	private func calculateScrollTargetForToday(for date: Date) -> String {
+		// Find which week contains this date and scroll to 1 week before (second row)
+		for (weekIndex, week) in weekGroups.enumerated() {
+			if week.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
+				let targetWeekIndex = max(0, weekIndex - 1)
+				let scrollTarget = "week-\(targetWeekIndex)"
+				print("DEBUG: calculateScrollTargetForToday - found date in week \(weekIndex), scrolling to week-\(targetWeekIndex)")
+				return scrollTarget
 			}
 		}
+		
+		// Fallback to first week
+		print("DEBUG: calculateScrollTargetForToday - date not found, scrolling to week-0")
+		return "week-0"
+	}
+	
+	private func calculateScrollTargetForDetails(for date: Date) -> String {
+		// Find which week contains this date and scroll to that week (top row)
+		for (weekIndex, week) in weekGroups.enumerated() {
+			if week.contains(where: { calendar.isDate($0, inSameDayAs: date) }) {
+				let scrollTarget = "week-\(weekIndex)"
+				print("DEBUG: calculateScrollTargetForDetails - found date in week \(weekIndex), scrolling to week-\(weekIndex)")
+				return scrollTarget
+			}
+		}
+		
+		// Fallback to first week
+		print("DEBUG: calculateScrollTargetForDetails - date not found, scrolling to week-0")
+		return "week-0"
 	}
 
 	private func isAlternateMonth(_ date: Date) -> Bool {
@@ -211,6 +352,29 @@ struct InfiniteCalendarView: View {
 			}
 			calendarManager.loadEventsForMonth(containing: date, forceReload: forceReload)
 		}
+	}
+	
+	private func handleDayTap(date: Date, proxy: ScrollViewProxy) {
+		print("DEBUG: handleDayTap called for date: \(date)")
+		selectedDate = date
+		shouldScrollToSelected = calendar.isDate(date, inSameDayAs: todaysDate)
+		
+		// Toggle details view for the same day
+		if let currentDetailsDate = selectedDayForDetails,
+		   calendar.isDate(date, inSameDayAs: currentDetailsDate) {
+			print("DEBUG: Closing details (was showing \(currentDetailsDate))")
+			selectedDayForDetails = nil
+		} else {
+			print("DEBUG: Opening details for \(date)")
+			selectedDayForDetails = date
+			// Scroll to show the selected week at the top for details
+			let scrollTarget = calculateScrollTargetForDetails(for: date)
+			print("DEBUG: Scrolling for details to: \(scrollTarget)")
+			withAnimation(.easeInOut(duration: 0.3)) {
+				proxy.scrollTo(scrollTarget, anchor: .top)
+			}
+		}
+		print("DEBUG: selectedDayForDetails is now: \(String(describing: selectedDayForDetails))")
 	}
 }
 

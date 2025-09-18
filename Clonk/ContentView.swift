@@ -39,8 +39,12 @@ struct ContentView: View {
 
 			HStack {
 				Button(action: {
+					print("DEBUG: Today button pressed!")
+					print("DEBUG: todaysDate: \(todaysDate)")
+					print("DEBUG: old selectedDate: \(selectedDate)")
 					selectedDate = todaysDate
 					shouldScrollToToday = true
+					print("DEBUG: set shouldScrollToToday = true")
 				}) {
 					Text(NSLocalizedString("today", comment: "Today button"))
 						.foregroundColor(Color(NSColor.controlAccentColor))
