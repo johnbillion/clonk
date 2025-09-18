@@ -6,6 +6,8 @@ A macOS menu bar app that displays the current time and shows a delicious calend
 
 Download `Clonk.dmg` from [the latest release](https://github.com/johnbillion/clonk/releases) and install it like any other app. Clonk is currently not signed, so the first time you attempt to open the app macOS will prevent it from opening and show you a warning. Visit System Settings -> Privacy & Security, scroll down, and you'll see a message about Clonk and an option to allow it to run. Allow it and the open the app again and you'll be good to go.
 
+Visit System Settings -> Control Centre, scroll down and click Clock Options, then choose Analogue for the menu bar clock style. This is the only way to minimise the clock in the menu bar on macOS, there is no way to fully hide it.
+
 ## Building and Running
 
 ### Option 1: Command Line (No Xcode Required)
