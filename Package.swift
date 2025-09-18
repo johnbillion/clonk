@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
 	name: "Clonk",
+	defaultLocalization: "en",
 	platforms: [
 		.macOS(.v14)
 	],
@@ -16,7 +17,15 @@ let package = Package(
 		.executableTarget(
 			name: "Clonk",
 			path: "Clonk",
-			exclude: ["Info.plist"]
+			exclude: [
+				"Info.plist",
+				"AppIcon.icns",
+				"AppIcon.iconset"
+			],
+			resources: [
+				.process("Localizable.strings"),
+				.process("en.lproj")
+			]
 		),
 		.executableTarget(
 			name: "ClonkTests",

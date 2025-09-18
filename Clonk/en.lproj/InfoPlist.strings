@@ -1,0 +1,4 @@
+/* Localized versions of Info.plist keys */
+
+"NSCalendarsUsageDescription" = "Clonk needs access to your calendars to display events in the calendar view.";
+"NSCalendarsFullAccessUsageDescription" = "Clonk needs calendar access to display and manage your calendar events.";

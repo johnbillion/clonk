@@ -27,8 +27,8 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2025 John Blackbourn. All rights reserved.</string>
 	<key>NSCalendarsUsageDescription</key>
-	<string>$(calendars_usage_description)</string>
+	<string>NSCalendarsUsageDescription</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
-	<string>$(calendars_full_access_usage_description)</string>
+	<string>NSCalendarsFullAccessUsageDescription</string>
 </dict>
 </plist>
