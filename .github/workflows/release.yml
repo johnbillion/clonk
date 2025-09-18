@@ -50,13 +50,11 @@ jobs:
     - name: Test DMG
       run: ./test-dmg.sh
 
-    # Disabled while the repo is private:
-    #
-    # - name: Generate build attestation
-    #   uses: actions/attest-build-provenance@v1
-    #   with:
-    #     subject-path: 'Clonk.dmg'
-    #     subject-name: 'Clonk ${ { inputs.tag || github.event.release.tag_name } }'
+    - name: Generate build attestation
+      uses: actions/attest-build-provenance@v1
+      with:
+        subject-path: 'Clonk.dmg'
+        subject-name: 'Clonk ${{ inputs.tag || github.event.release.tag_name }}'
 
     - name: Upload release asset
       env:
