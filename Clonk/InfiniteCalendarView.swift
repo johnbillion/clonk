@@ -112,7 +112,7 @@ struct InfiniteCalendarView: View {
 			}
 		}
 	}
-	
+
 	private var filteredVisibleDates: [Date] {
 		if showWeekends {
 			return visibleDates
@@ -157,7 +157,7 @@ struct InfiniteCalendarView: View {
 			let targetDate = calendar.startOfDay(for: selectedDate)
 			let mondayOfTargetWeek = startOfWeek(for: targetDate)
 			let mondayOneWeekBefore = calendar.date(byAdding: .day, value: -7, to: mondayOfTargetWeek) ?? mondayOfTargetWeek
-			
+
 			if let scrollToDate = filteredVisibleDates.first(where: { calendar.isDate($0, inSameDayAs: mondayOneWeekBefore) }) {
 				withAnimation(.easeInOut(duration: 0.3)) {
 					proxy.scrollTo(scrollToDate, anchor: UnitPoint.top)

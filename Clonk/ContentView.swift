@@ -128,12 +128,12 @@ struct ContentView: View {
 		.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DateDidChange"))) { _ in
 			let newToday = Date()
 			let calendar = Calendar.current
-			
+
 			// If the selected date was today (old today), update it to new today
 			if calendar.isDate(selectedDate, inSameDayAs: todaysDate) {
 				selectedDate = newToday
 			}
-			
+
 			todaysDate = newToday
 		}
 	}

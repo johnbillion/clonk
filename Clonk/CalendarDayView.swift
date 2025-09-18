@@ -32,7 +32,7 @@ struct CalendarDayView: View {
 					.frame(maxWidth: .infinity, alignment: .topTrailing)
 					.padding(.top, 7)
 					.padding(.trailing, 10)
-				
+
 				if !events.isEmpty {
 					HStack(spacing: 2) {
 						Spacer()
@@ -50,7 +50,7 @@ struct CalendarDayView: View {
 					.padding(.bottom, 6)
 					.padding(.trailing, 10)
 				}
-				
+
 				Spacer(minLength: 0)
 			}
 			.frame(height: 52)
@@ -106,7 +106,7 @@ struct CalendarDayView: View {
 			return "\(day)"
 		}
 	}
-	
+
 	private var events: [EKEvent] {
 		let dayStart = calendar.startOfDay(for: date)
 		return calendarManager.events[dayStart] ?? []

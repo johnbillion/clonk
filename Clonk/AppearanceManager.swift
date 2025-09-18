@@ -3,14 +3,14 @@ import AppKit
 
 class AppearanceManager: ObservableObject {
 	static let shared = AppearanceManager()
-	
+
 	@Published var colorScheme: ColorScheme? = nil
 	private var currentMode: AppearanceMode = .auto
-	
+
 	private init() {
 		// Load saved appearance mode on init
 		loadSavedAppearance()
-		
+
 		// Listen for system appearance changes
 		DistributedNotificationCenter.default.addObserver(
 			self,
@@ -19,27 +19,27 @@ class AppearanceManager: ObservableObject {
 			object: nil
 		)
 	}
-	
+
 	func setAppearance(_ mode: AppearanceMode) {
 		currentMode = mode
 		UserDefaults.standard.set(mode.rawValue, forKey: "appearanceMode")
 		applyAppearance(mode)
 	}
-	
+
 	private func loadSavedAppearance() {
 		let savedMode = UserDefaults.standard.string(forKey: "appearanceMode") ?? AppearanceMode.auto.rawValue
 		let mode = AppearanceMode(rawValue: savedMode) ?? .auto
 		currentMode = mode
 		applyAppearance(mode)
 	}
-	
+
 	@objc private func systemAppearanceChanged() {
 		// Only update if we're in auto mode
 		if currentMode == .auto {
 			applyAppearance(.auto)
 		}
 	}
-	
+
 	private func applyAppearance(_ mode: AppearanceMode) {
 		DispatchQueue.main.async {
 			switch mode {

@@ -46,29 +46,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		if UserDefaults.standard.object(forKey: "showDateInMenubar") == nil {
 			UserDefaults.standard.set(true, forKey: "showDateInMenubar")
 		}
-		
+
 		let showDateInMenubar = UserDefaults.standard.bool(forKey: "showDateInMenubar")
 		let formatter = DateFormatter()
-		
+
 		if showDateInMenubar {
 			formatter.dateFormat = "E d MMM HH:mm"
 		} else {
 			formatter.dateFormat = "HH:mm"
 		}
-		
+
 		if let button = statusItem.button {
 			button.title = formatter.string(from: Date())
 		}
 	}
-	
+
 	private func checkDateChange() {
 		let currentDate = Date()
 		let calendar = Calendar.current
-		
+
 		// Check if we've crossed midnight
 		if !calendar.isDate(lastDate, inSameDayAs: currentDate) {
 			lastDate = currentDate
-			
+
 			if popover.isShown {
 				// Popover is visible, update immediately
 				NotificationCenter.default.post(name: NSNotification.Name("DateDidChange"), object: nil)
@@ -97,7 +97,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		if let button = statusItem.button {
 			popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 			eventMonitor?.start()
-			
+
 			// Check if there's a pending date change and notify if so
 			if pendingDateChange {
 				pendingDateChange = false
