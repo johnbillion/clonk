@@ -356,6 +356,7 @@ struct InfiniteCalendarView: View {
 	
 	private func handleDayTap(date: Date, proxy: ScrollViewProxy) {
 		print("DEBUG: handleDayTap called for date: \(date)")
+		print("DEBUG: Current selectedDayForDetails: \(String(describing: selectedDayForDetails))")
 		selectedDate = date
 		shouldScrollToSelected = calendar.isDate(date, inSameDayAs: todaysDate)
 		
@@ -366,15 +367,23 @@ struct InfiniteCalendarView: View {
 			selectedDayForDetails = nil
 		} else {
 			print("DEBUG: Opening details for \(date)")
+			
 			selectedDayForDetails = date
-			// Scroll to show the selected week at the top for details
+			print("DEBUG: Updated selectedDayForDetails to: \(date)")
+			
+			// Calculate scroll target AFTER updating selectedDayForDetails
 			let scrollTarget = calculateScrollTargetForDetails(for: date)
-			print("DEBUG: Scrolling for details to: \(scrollTarget)")
-			withAnimation(.easeInOut(duration: 0.3)) {
-				proxy.scrollTo(scrollTarget, anchor: .top)
+			print("DEBUG: Calculated scroll target: \(scrollTarget)")
+			
+			// Delay scroll slightly to let UI update
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+				print("DEBUG: Scrolling for details to: \(scrollTarget)")
+				withAnimation(.easeInOut(duration: 0.3)) {
+					proxy.scrollTo(scrollTarget, anchor: .top)
+				}
 			}
 		}
-		print("DEBUG: selectedDayForDetails is now: \(String(describing: selectedDayForDetails))")
+		print("DEBUG: Final selectedDayForDetails: \(String(describing: selectedDayForDetails))")
 	}
 }
 
