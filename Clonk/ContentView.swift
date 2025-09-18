@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Combine
 
 struct ContentView: View {
 	@State private var todaysDate = Date()
@@ -139,6 +140,24 @@ struct ContentView: View {
 			}
 
 			todaysDate = newToday
+		}
+		.onReceive(
+			Publishers.MergeMany(
+				NotificationCenter.default.publisher(for: NSWorkspace.didWakeNotification),
+				NotificationCenter.default.publisher(for: NSApplication.didChangeScreenParametersNotification),
+				NotificationCenter.default.publisher(for: NSWorkspace.activeSpaceDidChangeNotification),
+				NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification),
+				NotificationCenter.default.publisher(for: NSWindow.didChangeScreenNotification)
+			)
+		) { _ in
+			// Close popovers on system events that could affect positioning:
+			// - System wake from sleep
+			// - Display configuration changes (connect/disconnect monitors, resolution changes)
+			// - Switching Spaces/Mission Control
+			// - App becoming active (switching back from another app)
+			// - Window moving to different screen
+			showingCalendarSettings = false
+			showingAppSettings = false
 		}
 	}
 
