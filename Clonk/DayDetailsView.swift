@@ -2,9 +2,9 @@ import SwiftUI
 import EventKit
 
 // Constants for calendar layout
-private let CalendarRowHeight: CGFloat = 52
-private let DetailsRowCount: CGFloat = 6
-private let DetailsHeight = DetailsRowCount * CalendarRowHeight
+let CalendarRowHeight: CGFloat = 52
+let DetailsRowCount: CGFloat = 6
+let DetailsHeight = DetailsRowCount * CalendarRowHeight
 
 struct DayDetailsView: View {
 	let date: Date
