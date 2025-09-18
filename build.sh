@@ -49,4 +49,5 @@ if swiftc Clonk/*.swift \
 	echo "Build complete! Run with: open build/Clonk.app"
 else
 	echo "❌ Swift compilation failed"
+	exit 1
 fi
