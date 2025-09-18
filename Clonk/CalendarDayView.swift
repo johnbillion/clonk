@@ -80,7 +80,8 @@ struct CalendarDayView: View {
 		} else if isWeekend {
 			return Color.gray.opacity(0.01)
 		} else if isAlternateMonth {
-			return Color.gray.opacity(0.0005)
+			// Alternate month background disabled but logic retained
+			return Color(NSColor.controlBackgroundColor)
 		} else {
 			return Color(NSColor.controlBackgroundColor)
 		}
