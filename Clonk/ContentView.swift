@@ -141,6 +141,10 @@ struct ContentView: View {
 
 			todaysDate = newToday
 		}
+		.onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("ShowCalendarSettings"))) { _ in
+			// Automatically open calendar settings on first startup
+			showingCalendarSettings = true
+		}
 		.onReceive(
 			Publishers.MergeMany(
 				NotificationCenter.default.publisher(for: NSWorkspace.didWakeNotification),

@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import EventKit
 
 class AppDelegate: NSObject, NSApplicationDelegate {
 	var statusItem: NSStatusItem!
@@ -37,7 +38,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		}
 
 		DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-			self.showPopover()
+			self.checkAndShowInitialPopover()
 		}
 	}
 
@@ -79,6 +80,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		}
 	}
 
+	private func checkAndShowInitialPopover() {
+		let calendarManager = CalendarManager.shared
+
+		// Show the main popover
+		showPopover()
+
+		// Automatically open calendar settings if no calendar access yet
+		if calendarManager.authorizationStatus == .notDetermined ||
+			calendarManager.authorizationStatus == .denied {
+
+			// Give the popover focus so buttons appear active
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+				if let popoverWindow = self.popover.contentViewController?.view.window {
+					popoverWindow.makeKey()
+				}
+
+				// Post notification to show calendar settings
+				NotificationCenter.default.post(name: NSNotification.Name("ShowCalendarSettings"), object: nil)
+			}
+		}
+	}
+
 	@objc func togglePopover() {
 		guard let event = NSApp.currentEvent else { return }
 
@@ -97,6 +120,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		if let button = statusItem.button {
 			popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 			eventMonitor?.start()
+
+			// Give the popover focus so buttons appear active
+			DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+				if let popoverWindow = self.popover.contentViewController?.view.window {
+					popoverWindow.makeKey()
+				}
+			}
 
 			// Check if there's a pending date change and notify if so
 			if pendingDateChange {
