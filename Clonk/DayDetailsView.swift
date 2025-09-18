@@ -1,6 +1,11 @@
 import SwiftUI
 import EventKit
 
+// Constants for calendar layout
+private let CalendarRowHeight: CGFloat = 52
+private let DetailsRowCount: CGFloat = 6
+private let DetailsHeight = DetailsRowCount * CalendarRowHeight
+
 struct DayDetailsView: View {
 	let date: Date
 	let selectedDayPosition: CGPoint
@@ -148,7 +153,7 @@ struct DayDetailsView: View {
 				}
 			}
 		.frame(width: gridWidth)
-		.frame(height: 260) // 5 weeks height
+		.frame(height: DetailsHeight)
 		.background(Color(NSColor.controlBackgroundColor))
 	}
 }

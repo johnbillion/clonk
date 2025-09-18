@@ -130,7 +130,7 @@ struct InfiniteCalendarView: View {
 				)
 				.padding(.horizontal, 0)
 			}
-			.frame(height: 260)
+			.frame(height: DetailsHeight)
 			.transition(.opacity.combined(with: .move(edge: .top)))
 		}
 	}
