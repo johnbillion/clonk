@@ -40,6 +40,8 @@ class CalendarManager: ObservableObject {
 				self.authorizationStatus = granted ? .fullAccess : .denied
 				if granted {
 					self.loadCalendars()
+					// Automatically load events for the current month after permission grant
+					self.loadEventsForCurrentMonth()
 				}
 			}
 			return granted
@@ -61,6 +63,20 @@ class CalendarManager: ObservableObject {
 			// Select all calendars by default only on first run
 			selectedCalendarIdentifiers = Set(calendars.compactMap { $0.calendarIdentifier })
 			saveCalendarSelection()
+		}
+	}
+	
+	func loadEventsForCurrentMonth() {
+		let now = Date()
+		loadEventsForMonth(containing: now, forceReload: true)
+		
+		// Also load the previous and next months for smooth navigation
+		let calendar = Calendar.current
+		if let previousMonth = calendar.date(byAdding: .month, value: -1, to: now) {
+			loadEventsForMonth(containing: previousMonth, forceReload: true)
+		}
+		if let nextMonth = calendar.date(byAdding: .month, value: 1, to: now) {
+			loadEventsForMonth(containing: nextMonth, forceReload: true)
 		}
 	}
 
