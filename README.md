@@ -2,6 +2,8 @@
 
 A macOS menu bar app that displays the current time and shows a delicious calendar popup when clicked.
 
+Clonk is a small side project and mostly built using an AI-assisted development agent. I hope it will eventually be mature and feature rich, but no need to take it too seriously just yet.
+
 ![](assets/screenshot.png)
 
 ## Installing
@@ -14,6 +16,8 @@ Clonk is not currently signed, so the first time you attempt to open the app mac
 2. Scroll down and you'll see a message about Clonk and an option to allow it to run
 3. Allow it and the open the app again
 
+## FAQs
+
 ### How do I hide the built-in macOS clock?
 
 There is no way to fully hide the macOS clock in the menu bar. The best approach is to minimise its appearance.
@@ -21,6 +25,14 @@ There is no way to fully hide the macOS clock in the menu bar. The best approach
 1. Go to *System Settings* -> *Control Centre*
 2. Scroll down and click *Clock Options*
 3. Coose *Analogue* for the menu bar clock style
+
+### How do you pronounce Clonk?
+
+It rhymes with:
+
+* ✅ bonk
+* ✅ honk
+* ❌ monk
 
 ## Building and Running
 
