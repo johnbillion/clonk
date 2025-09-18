@@ -7,6 +7,7 @@ struct CalendarDayView: View {
 	let isToday: Bool
 	let onTap: () -> Void
 	let isAlternateMonth: Bool
+	let hasDetailsOpen: Bool
 
 	@ObservedObject private var calendarManager = CalendarManager.shared
 	private let calendar = Calendar.current
@@ -34,12 +35,16 @@ struct CalendarDayView: View {
 					.padding(.trailing, 10)
 
 				if !events.isEmpty {
-					HStack(spacing: 2) {
+					HStack(spacing: 3) {
 						Spacer()
 						ForEach(Array(events.prefix(3)), id: \.eventIdentifier) { event in
 							Circle()
 								.fill(Color(cgColor: event.calendar.cgColor))
-								.frame(width: 8, height: 8)
+								.frame(width: 10, height: 10)
+								.overlay(
+									Circle()
+										.stroke(isSelected ? Color.white : Color(NSColor.controlBackgroundColor), lineWidth: 1)
+								)
 						}
 						if events.count > 3 {
 							Text("+\(events.count - 3)")
@@ -59,6 +64,17 @@ struct CalendarDayView: View {
 			.overlay(
 				Rectangle()
 					.stroke(Color.gray.opacity(0.3), lineWidth: 0.5)
+			)
+			.overlay(
+				// Arrow pointing down when details are open for this day
+				hasDetailsOpen ?
+				VStack {
+					Spacer()
+					Triangle()
+						.fill(Color(NSColor.controlBackgroundColor))
+						.frame(width: 16, height: 8)
+				}
+				: nil
 			)
 		}
 		.buttonStyle(PlainButtonStyle())
@@ -113,4 +129,15 @@ struct CalendarDayView: View {
 		return calendarManager.events[dayStart] ?? []
 	}
 
+}
+
+struct Triangle: Shape {
+	func path(in rect: CGRect) -> Path {
+		var path = Path()
+		path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+		path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+		path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+		path.closeSubpath()
+		return path
+	}
 }

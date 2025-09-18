@@ -28,7 +28,7 @@ struct DayDetailsView: View {
 	
 	private let dateFormatter: DateFormatter = {
 		let formatter = DateFormatter()
-		formatter.dateStyle = .full
+		formatter.dateFormat = "EEE d MMM yyyy" // e.g. "Mon 1 Dec 2025"
 		return formatter
 	}()
 	
@@ -40,18 +40,6 @@ struct DayDetailsView: View {
 	
 	var body: some View {
 		VStack(spacing: 0) {
-			// Triangle pointer
-			HStack {
-				Spacer()
-					.frame(width: selectedDayPosition.x - 8)
-				Triangle()
-					.fill(Color(NSColor.controlBackgroundColor))
-					.frame(width: 16, height: 8)
-				Spacer()
-			}
-			
-			// Details panel
-			VStack(spacing: 0) {
 				// Header with date and all-day events
 				FlowLayout(spacing: 8) {
 					// Date as a chip (no background)
@@ -60,7 +48,7 @@ struct DayDetailsView: View {
 							.font(.subheadline)
 							.foregroundColor(.primary)
 					}
-					.padding(.horizontal, 8)
+					.padding(.horizontal, 0)
 					.padding(.vertical, 4)
 					
 					// All day events as chips
@@ -90,7 +78,8 @@ struct DayDetailsView: View {
 										Spacer()
 									}
 									.padding(.horizontal, 16)
-									
+									.padding(.top, 8)
+
 									if morningEvents.isEmpty {
 										Text("No events")
 											.font(.system(size: 13))
@@ -122,7 +111,8 @@ struct DayDetailsView: View {
 										Spacer()
 									}
 									.padding(.horizontal, 16)
-									
+									.padding(.top, 8)
+
 									if afternoonEvents.isEmpty {
 										Text("No events")
 											.font(.system(size: 13))
@@ -157,12 +147,9 @@ struct DayDetailsView: View {
 					}
 				}
 			}
-			.background(Color(NSColor.controlBackgroundColor))
-			.cornerRadius(8)
-			.shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
-		}
 		.frame(width: gridWidth)
-		.frame(height: 260) // Approximately 5 weeks height (52 * 5)
+		.frame(height: 260) // 5 weeks height
+		.background(Color(NSColor.controlBackgroundColor))
 	}
 }
 
@@ -180,8 +167,8 @@ struct EventRowView: View {
 		HStack(spacing: 8) {
 			Circle()
 				.fill(Color(cgColor: event.calendar.cgColor))
-				.frame(width: 8, height: 8)
-			
+				.frame(width: 10, height: 10)
+
 			VStack(alignment: .leading, spacing: 2) {
 				Text(event.title)
 					.font(.system(size: 13))
@@ -202,16 +189,6 @@ struct EventRowView: View {
 	}
 }
 
-struct Triangle: Shape {
-	func path(in rect: CGRect) -> Path {
-		var path = Path()
-		path.move(to: CGPoint(x: rect.midX, y: rect.minY))
-		path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
-		path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
-		path.closeSubpath()
-		return path
-	}
-}
 
 struct EventChipView: View {
 	let event: EKEvent
@@ -220,8 +197,12 @@ struct EventChipView: View {
 		HStack(spacing: 6) {
 			Circle()
 				.fill(Color(cgColor: event.calendar.cgColor))
-				.frame(width: 8, height: 8)
-			
+				.frame(width: 12, height: 12)
+				.overlay(
+					Circle()
+						.stroke(Color(NSColor.controlBackgroundColor), lineWidth: 1)
+				)
+
 			Text(event.title)
 				.font(.system(size: 12))
 				.foregroundColor(.primary)

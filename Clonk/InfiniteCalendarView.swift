@@ -173,7 +173,8 @@ struct InfiniteCalendarView: View {
 					onTap: {
 						handleDayTap(date: date, proxy: proxy)
 					},
-					isAlternateMonth: isAlternateMonth(date)
+					isAlternateMonth: isAlternateMonth(date),
+					hasDetailsOpen: selectedDayForDetails != nil && calendar.isDate(date, inSameDayAs: selectedDayForDetails!)
 				)
 				.id(date)
 				.onAppear {
