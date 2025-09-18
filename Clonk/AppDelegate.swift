@@ -8,6 +8,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 	var timer: Timer?
 	var isPinned = false
 	private var lastDate = Date()
+	private var pendingDateChange = false
 
 	func applicationDidFinishLaunching(_ notification: Notification) {
 		statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
@@ -67,8 +68,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		// Check if we've crossed midnight
 		if !calendar.isDate(lastDate, inSameDayAs: currentDate) {
 			lastDate = currentDate
-			// Notify ContentView that the date has changed
-			NotificationCenter.default.post(name: NSNotification.Name("DateDidChange"), object: nil)
+			
+			if popover.isShown {
+				// Popover is visible, update immediately
+				NotificationCenter.default.post(name: NSNotification.Name("DateDidChange"), object: nil)
+			} else {
+				// Popover is hidden, defer the update
+				pendingDateChange = true
+			}
 		}
 	}
 
@@ -90,6 +97,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 		if let button = statusItem.button {
 			popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
 			eventMonitor?.start()
+			
+			// Check if there's a pending date change and notify if so
+			if pendingDateChange {
+				pendingDateChange = false
+				NotificationCenter.default.post(name: NSNotification.Name("DateDidChange"), object: nil)
+			}
 		}
 	}
 
